@@ -17,4 +17,5 @@ def process_request():
         handle_message(request.POST)
 
 
-process_request()
+if __name__ == "__main__":
+    process_request()
