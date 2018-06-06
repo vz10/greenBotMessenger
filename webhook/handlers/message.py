@@ -35,4 +35,5 @@ def handle_message(data):
                 redis_client = redis.StrictRedis(host=REDIS_HOST, port=6380, password=REDIS_PASSWD, ssl=True, db=0)
                 if not redis_client.get(message["mid"]):
                     redis_client.set(message["mid"], "1")
+                    redis_client.expire(message["mid"], 90)  # expire in 1.5 minutes
                     send_response(sender_psid, message["text"])
