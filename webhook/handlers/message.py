@@ -22,9 +22,6 @@ def send_response(sender_psid, msg_txt):
 
 
 def handle_message(data):
-    # notify facebook that message is received:
-    write_http_response(200)
-
     if data.get("object") == "page":
         for entry in data.get("entry"):
             webhook_event = entry["messaging"][0]
@@ -33,7 +30,12 @@ def handle_message(data):
 
             if message and message.get("text"):
                 redis_client = redis.StrictRedis(host=REDIS_HOST, port=6380, password=REDIS_PASSWD, ssl=True, db=0)
+                # facebook resend events to the webhook if doesn't get 200 response in 20 seconds
+                # so on function cold start bot may get duplicated messages, that is why this is here
                 if not redis_client.get(message["mid"]):
                     redis_client.set(message["mid"], "1")
                     redis_client.expire(message["mid"], 90)  # expire in 1.5 minutes
                     send_response(sender_psid, message["text"])
+
+    # notify facebook that message is received
+    write_http_response(200)
