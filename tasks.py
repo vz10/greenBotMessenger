@@ -76,17 +76,34 @@ def make_venv(c, pythonpath="/usr/bin/python2.7", verbose=False):
             raise DeploymentError("Can't create virtual environment")
 
 
-def _add_az_repo(c, project_name, verbose=False):
-    r = c.run("az functionapp deployment source config-local-git --name {0}-fn --resource-group {0}-gr".format(project_name),
+def _add_deployment_user(c, project_name, user=None, password=None, verbose=False):
+    user = user or "{}_du".format(project_name)
+    password = password or _gen_password(21)
+    r = c.run("az functionapp deployment user set --user-name {} --password {}".format(user, password),
+              hide=None if verbose else "out", echo=verbose)
+    if r.ok:
+        with open('.deployment.json', 'w') as f:
+            json.dump({"user": user, "password": password, "project_name": project_name}, f)
+        print("Successfully created deployment user '{}'".format(user))
+    else:
+        raise DeploymentError("Can't create deployment user for uploading")
+
+
+def _add_az_repo(c, project_name, user=None, password=None, verbose=False):
+    _add_deployment_user(c, project_name, user, password, verbose)
+    r = c.run("az functionapp deployment source config-local-git --name {0}-fn "
+              "--resource-group {0}-gr".format(project_name),
               hide=None if verbose else "out", echo=verbose)
     if r.ok:
         res_dict = json.loads(r.stdout)
 
         r = c.run("git config remote.azure.url")
         if r.stdout:  # remote exists - update url
-            c.run("git remote set-url azure {}".format(res_dict["url"]))
+            c.run("git remote set-url azure {}".format(res_dict["url"]),
+                  hide=None if verbose else "out", echo=verbose)
         else:
-            c.run("git remote add azure {}".format(res_dict["url"]))
+            c.run("git remote add azure {}".format(res_dict["url"]),
+                  hide=None if verbose else "out", echo=verbose)
     else:
         raise DeploymentError("Can't add git remote url for Azure")
 
@@ -110,23 +127,24 @@ def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose=F
 
 @task
 def update(c, pythonpath="/usr/bin/python2.7", skip_venv_creation=False, verbose=False):
+    data = None
+    with open('.deployment.json', 'r') as f:
+        data = json.load(f)
     if not skip_venv_creation:
         make_venv(c, pythonpath, verbose)
-    r = c.run("git push azure master", hide=None if verbose else "out", echo=verbose)
+    pattern = r"Password for 'https://{}@{}-fn.scm.azurewebsites.net': ".format(data["user"], data["project_name"])
+    responder = Responder(
+        # Password for 'https://testmsgbot05_du@testmsgbot05-fn.scm.azurewebsites.net':
+        pattern=pattern,
+        response=data["password"] + "\n"
+    )
+    r = c.run("git push azure master", watchers=[responder], pty=True, hide=None if verbose else "out", echo=verbose)
 
 
 @task
 def deploy(c, project_name, fb_page_access_token, fb_verify_token=None, user=None, password=None,
            pythonpath="/usr/bin/python2.7", skip_resources_creation=False, skip_venv_creation=False, verbose=False):
     if not skip_resources_creation:
-        user = user or "{}_du".format(project_name)
-        password = password or _gen_password(21)
-        r = c.run("az functionapp deployment user set --user-name {} --password {}".format(user, password),
-                  hide=None if verbose else "out", echo=verbose)
-        if r.ok:
-            print("Successfully created deployment user '{}'".format(user))
-        else:
-            return False
 
         try:
             _create_resources(c, project_name, verbose)
@@ -135,7 +153,7 @@ def deploy(c, project_name, fb_page_access_token, fb_verify_token=None, user=Non
             raise e
 
     # using "deployment local git" https://docs.microsoft.com/en-us/azure/app-service/app-service-deploy-local-git
-    _add_az_repo(c, project_name, verbose)
+    _add_az_repo(c, project_name, user, password, verbose)
     set_os_env(c, project_name, fb_page_access_token, fb_verify_token)
     update(c, pythonpath, skip_venv_creation, verbose)
 
