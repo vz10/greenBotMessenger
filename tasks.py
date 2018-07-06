@@ -96,8 +96,7 @@ def _add_az_repo(c, project_name, user=None, password=None, verbose=False):
               hide=None if verbose else "out", echo=verbose)
     if r.ok:
         res_dict = json.loads(r.stdout)
-
-        r = c.run("git config remote.azure.url")
+        r = c.run("git config remote.azure.url", hide=None if verbose else "out", echo=verbose, warn=True)
         if r.stdout:  # remote exists - update url
             c.run("git remote set-url azure {}".format(res_dict["url"]),
                   hide=None if verbose else "out", echo=verbose)
@@ -110,8 +109,8 @@ def _add_az_repo(c, project_name, user=None, password=None, verbose=False):
 
 @task
 def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose=False):
-    if not fb_page_access_token:
-        fb_page_access_token = str(uuid.uuid4())
+    if not fb_verify_token:
+        fb_verify_token = str(uuid.uuid4())
     r = c.run("az redis list-keys --resource-group {0}-gr --name {0}-rd".format(project_name),
               hide=None if verbose else "out", echo=verbose)
     res_dict = json.loads(r.stdout)
@@ -127,7 +126,6 @@ def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose=F
 
 @task
 def update(c, pythonpath="/usr/bin/python2.7", skip_venv_creation=False, verbose=False):
-    data = None
     with open('.deployment.json', 'r') as f:
         data = json.load(f)
     if not skip_venv_creation:
@@ -159,9 +157,10 @@ def deploy(c, project_name, fb_page_access_token, fb_verify_token=None, user=Non
 
 
 @task
-def show_config(c, project_name):
+def show_config(c, project_name, verbose=False):
     r = c.run("az functionapp config appsettings list"
-              " --name {}-fn --resource-group {}-gr".format(project_name), hide='both')
+              " --name {0}-fn --resource-group {0}-gr".format(project_name),
+              hide=None if verbose else "out", echo=verbose)
     if r.ok:
         res = {}
         for s in json.loads(r.stdout):
