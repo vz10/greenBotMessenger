@@ -32,7 +32,7 @@ def _create_resources(c, project_name, verbose=False):
          ("Storage",
           "az storage account create --name {0}st --location westus --resource-group {0}-gr --sku Standard_LRS"),
          ("Redis",
-          "az redis create --resource-group {0}-gr --location westus --name {0}-rd --sku Standard --vm-size C1"),
+          "az redis create --resource-group {0}-gr --location westus --name {0}-rd --sku Basic --vm-size C0"),
          ("Function App",
           "az functionapp create --resource-group {0}-gr --name {0}-fn --consumption-plan-location westus "
           "--storage-account {0}st --deployment-local-git"),
@@ -54,26 +54,9 @@ def delete_resources(c, project_name, verbose=False):
     )
     c.run("az group delete --name {}-gr".format(project_name),
           watchers=[responder],
+          pty=True,
           hide=None if verbose else "out",
           echo=verbose)
-
-
-@task
-def make_venv(c, pythonpath="/usr/bin/python2.7", verbose=False):
-    r = c.run("{} --version".format(pythonpath), hide="both")
-    if not (r.ok or r.stdout.lower().startswith("python 2.7")):
-        raise DeploymentError("Specify correct path to python 2.7 in --pythonpath parameter")
-
-    commands = ["virtualenv --python={} ./venv".format(pythonpath),
-                "./venv/bin/pip install -r requirements.txt"]
-    if os.path.isfile("./venv/bin/activate"):
-        # re-create venv to ensure python version is correct and there is no unwanted packages
-        commands.insert(0, "rm -rf ./venv")
-    for command in commands:
-        r = c.run(command,
-                  hide=None if verbose else "out", echo=verbose)
-        if r.failed or r.stderr:
-            raise DeploymentError("Can't create virtual environment")
 
 
 def _add_deployment_user(c, project_name, user=None, password=None, verbose=False):
@@ -90,7 +73,8 @@ def _add_deployment_user(c, project_name, user=None, password=None, verbose=Fals
 
 
 def _add_az_repo(c, project_name, user=None, password=None, verbose=False):
-    _add_deployment_user(c, project_name, user, password, verbose)
+    if not os.path.exists('.deployment.json'):
+        _add_deployment_user(c, project_name, user, password, verbose)
     r = c.run("az functionapp deployment source config-local-git --name {0}-fn "
               "--resource-group {0}-gr".format(project_name),
               hide=None if verbose else "out", echo=verbose)
@@ -119,17 +103,15 @@ def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose=F
                 project_name,
                 fb_verify_token,
                 fb_page_access_token,
-                "{}-rd.".format(project_name),
+                "{}-rd.redis.cache.windows.net".format(project_name),
                 res_dict["primaryKey"]
               ), hide=None if verbose else "out", echo=verbose)
 
 
 @task
-def update(c, pythonpath="/usr/bin/python2.7", skip_venv_creation=False, verbose=False):
+def update(c, verbose=False):
     with open('.deployment.json', 'r') as f:
         data = json.load(f)
-    if not skip_venv_creation:
-        make_venv(c, pythonpath, verbose)
     pattern = r"Password for 'https://{}@{}-fn.scm.azurewebsites.net': ".format(data["user"], data["project_name"])
     responder = Responder(
         # Password for 'https://testmsgbot05_du@testmsgbot05-fn.scm.azurewebsites.net':
@@ -141,19 +123,22 @@ def update(c, pythonpath="/usr/bin/python2.7", skip_venv_creation=False, verbose
 
 @task
 def deploy(c, project_name, fb_page_access_token, fb_verify_token=None, user=None, password=None,
-           pythonpath="/usr/bin/python2.7", skip_resources_creation=False, skip_venv_creation=False, verbose=False):
+           skip_resources_creation=False, verbose=False, force=False):
+    if os.path.exists('.deployment.json') and not force:
+        print("Project already have been deployed. "
+              "Use 'invoke update' to apply changes or run with key --force to create new deployment")
+        return 1
     if not skip_resources_creation:
-
         try:
             _create_resources(c, project_name, verbose)
+            set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose)
         except DeploymentError as e:
             delete_resources(c, project_name)
             raise e
 
     # using "deployment local git" https://docs.microsoft.com/en-us/azure/app-service/app-service-deploy-local-git
     _add_az_repo(c, project_name, user, password, verbose)
-    set_os_env(c, project_name, fb_page_access_token, fb_verify_token)
-    update(c, pythonpath, skip_venv_creation, verbose)
+    update(c, verbose)
 
 
 @task
