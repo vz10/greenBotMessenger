@@ -24,7 +24,7 @@ def send_response(sender_psid):
             "id": sender_psid
         },
         "message": {
-            "text": "What I should do with the plant?",
+            "text": "What should I do with the plant?",
             "quick_replies": quick_replies},
     }
 
@@ -52,9 +52,9 @@ def handle_message(data):
                     redis_client.expire(message["mid"], 90)  # expire in 1.5 minutes
 
                     # handle the sender's choice
-                    if message.get["text"] == "/vote":
+                    if message["text"] == "/vote":
                         send_response(sender_psid)
-                    elif message.get["text"] == "/voting_result":
+                    elif message["text"] == "/voting_result":
                         docs = get_docs_from_db(config_vote)
                         for doc in docs:
                             pass

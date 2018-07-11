@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # credentials Azure CosmoDB from .env
-AZURE_URL = os.getenv("AZURE_URL")
-AZURE_PASSWORD = os.getenv("AZURE_PASSWORD")
+DB_URL = os.getenv("DB_URL")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # database and collection
 config_options = {
@@ -20,7 +20,7 @@ config_vote = {
 }
 
 # connection to database Azure CosmoDB
-client = document_client.DocumentClient(AZURE_URL, {"masterKey": AZURE_PASSWORD})
+client = document_client.DocumentClient(DB_URL, {"masterKey": DB_PASSWORD})
 
 
 def get_docs_from_db(config):
