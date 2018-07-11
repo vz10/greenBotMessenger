@@ -4,10 +4,10 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import get_docs
+from webhook.azure_db import get_docs_from_db, config_options, config_vote
 
 # get options from database
-docs = get_docs()
+docs = get_docs_from_db(config_options)
 quick_replies = []
 for doc in docs:
     reply = {
@@ -55,10 +55,10 @@ def handle_message(data):
                     if message.get["text"] == "/vote":
                         send_response(sender_psid)
                     elif message.get["text"] == "/voting_result":
-                        # TODO: send all data from database
-                        pass
+                        docs = get_docs_from_db(config_vote)
+                        for doc in docs:
+                            pass
                     else:
                         pass
-
     # notify facebook that message is received
     write_http_response(200)
