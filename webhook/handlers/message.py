@@ -4,15 +4,28 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
+from webhook.azure_db import get_docs
+
+# get options from database
+docs = get_docs()
+quick_replies = []
+for doc in docs:
+    reply = {
+        "content_type": "text",
+        "title": str(doc["title"]),
+        "payload": str(doc["payload"])
+    }
+    quick_replies.append(reply)
 
 
-def send_response(sender_psid, msg_txt):
+def send_response(sender_psid):
     request_body = {
         "recipient": {
             "id": sender_psid
         },
-        "message": {"text":
-                    "PONG" if msg_txt.lower() == "ping" else ("WHAT \"%s\"?" % msg_txt)}
+        "message": {
+            "text": "What I should do with the plant?",
+            "quick_replies": quick_replies},
     }
 
     resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
@@ -35,7 +48,21 @@ def handle_message(data):
                 if not redis_client.get(message["mid"]):
                     redis_client.set(message["mid"], "1")
                     redis_client.expire(message["mid"], 90)  # expire in 1.5 minutes
-                    send_response(sender_psid, message["text"])
+
+                    # handle the sender's choice
+                    if message.get["text"] == "/vote":
+                        # TODO: send a quick replies
+                        pass
+                    elif message.get["text"] == "/voting_result":
+                        # TODO: send all data from database
+                        pass
+                    else:
+                        pass
 
     # notify facebook that message is received
     write_http_response(200)
+
+
+def handle_vote(request):
+    pass
+# TODO: send data to MongoDB
