@@ -38,7 +38,9 @@ def handle_message(data):
     if data.get("object") == "page":
         for entry in data.get("entry"):
             webhook_event = entry["messaging"][0]
+            # from request get recipient id
             sender_psid = webhook_event["sender"]["id"]
+            # from request get message
             message = webhook_event.get("message")
 
             if message and message.get("text"):
@@ -51,8 +53,7 @@ def handle_message(data):
 
                     # handle the sender's choice
                     if message.get["text"] == "/vote":
-                        # TODO: send a quick replies
-                        pass
+                        send_response(sender_psid)
                     elif message.get["text"] == "/voting_result":
                         # TODO: send all data from database
                         pass
@@ -61,8 +62,3 @@ def handle_message(data):
 
     # notify facebook that message is received
     write_http_response(200)
-
-
-def handle_vote(request):
-    pass
-# TODO: send data to MongoDB
