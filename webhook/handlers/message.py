@@ -6,18 +6,7 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import get_docs_from_db, put_docs_to_db, config_options, config_voting
-
-# get options from database
-docs = get_docs_from_db(config_options)
-quick_replies = []
-for doc in docs:
-    reply = {
-        "content_type": "text",
-        "title": str(doc["title"]),
-        "payload": str(doc["payload"])
-    }
-    quick_replies.append(reply)
+from webhook.azure_db import get_docs_from_db, put_docs_to_db, quick_replies, results_voting, config_voting
 
 
 def send_response(sender_psid):
@@ -27,7 +16,7 @@ def send_response(sender_psid):
         },
         "message": {
             "text": "What should I do with the plant?",
-            "quick_replies": quick_replies},
+            "quick_replies": quick_replies()},
     }
 
     resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
@@ -57,11 +46,10 @@ def handle_message(data):
                     if message["text"] == "/vote":
                         send_response(sender_psid)
                     elif message["text"] == "/voting_result":
-                        docs = get_docs_from_db(config_voting)
-                        for doc in docs:
-                            pass
-                    else:
-                        pass
+                        requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                                      params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                                      headers={'content-type': 'application/json'},
+                                      data=results_voting(config_voting))
                     if message.get("quick_reply"):
                         docs = get_docs_from_db(config_voting)
                         for doc in docs:
