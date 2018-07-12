@@ -52,7 +52,7 @@ def handle_message(data):
 
                     # if sender wants to view results of voting
                     elif message["text"] == "/voting_result":
-                        message_body = {"text": results_voting(config_voting)},
+                        message_body = {"text": results_voting(config_voting)}
                         send_response(sender_psid, message_body)
 
                     # handle voting of sender
