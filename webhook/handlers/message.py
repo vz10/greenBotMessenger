@@ -6,7 +6,8 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import get_docs_from_db, put_docs_to_db, upsert_docs_to_db, quick_replies, results_voting, config_voting
+from webhook.azure_db import get_docs_from_db, put_docs_to_db, upsert_docs_to_db, quick_replies, results_voting, \
+    config_voting, get_user_vote_or_empty
 
 
 def send_response(sender_psid, message):
@@ -57,21 +58,11 @@ def handle_message(data):
 
                     # handle voting of sender
                     elif message.get("quick_reply"):
-                        docs = get_docs_from_db(config_voting)
-                        for doc in docs:
-                            if doc["sender_id"] == sender_psid:
-                                result_vote = {
-                                    "timestamp": str(datetime.now()),
-                                    "vote": message["text"]
-                                }
-                                upsert_docs_to_db(result_vote, config_voting)
-                            else:
-                                result_vote = {
-                                    "sender_id": sender_psid,
-                                    "timestamp": str(datetime.now()),
-                                    "vote": message["text"]
-                                }
-                                put_docs_to_db(result_vote, config_voting)
+                        result_vote = get_user_vote_or_empty(sender_psid)
+                        result_vote["vote"] = message["text"]
+                        result_vote["sender_id"] = sender_psid
+                        result_vote["timestamp"] = str(datetime.now())
+                        upsert_docs_to_db(result_vote, config_voting)
 
     # notify facebook that message is received
     write_http_response(200)

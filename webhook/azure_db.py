@@ -1,6 +1,6 @@
 import os
 
-import pydocumentdb.document_client as document_client
+from pydocumentdb import document_client
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -93,3 +93,10 @@ def results_voting(config):
         count = list(client.QueryDocuments(collection_link, query))[0]
         result += doc["title"] + " = " + str(count) + "\n"
     return result
+
+
+def get_user_vote_or_empty(sender_id):
+    collection_link = "/".join(("dbs", config_voting["COSMOS_DATABASE"], "colls", config_voting["COSMOS_COLLECTION"]))
+    query = "SELECT * FROM Votings v WHERE v.sender_id = '{0}'".format(sender_id)
+    res = list(client.QueryDocuments(collection_link, query))
+    return {} if not res else res[0]
