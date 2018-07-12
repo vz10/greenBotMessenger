@@ -49,6 +49,18 @@ def put_docs_to_db(doc, config):
     client.CreateDocument(collection_link, doc)
 
 
+def upsert_docs_to_db(doc, config):
+    """
+    Put document to the database
+    :param doc: document
+    :param config: dictionary with values of database's name and collections's name
+    :return:
+    """
+    values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
+    collection_link = "/".join(values)
+    client.UpsertDocument(collection_link, doc)
+
+
 def quick_replies():
     """
     Get options for voting from database and create a dictionary with quick replies

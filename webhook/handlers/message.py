@@ -6,7 +6,7 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import get_docs_from_db, put_docs_to_db, quick_replies, results_voting, config_voting
+from webhook.azure_db import get_docs_from_db, put_docs_to_db, upsert_docs_to_db, quick_replies, results_voting, config_voting
 
 
 def send_response(sender_psid, message):
@@ -17,10 +17,10 @@ def send_response(sender_psid, message):
         "message": message
     }
 
-    requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                  headers={'content-type': 'application/json'},
-                  data=json.dumps(request_body))
+    resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                         params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                         headers={'content-type': 'application/json'},
+                         data=json.dumps(request_body))
 
 
 def handle_message(data):
@@ -60,8 +60,11 @@ def handle_message(data):
                         docs = get_docs_from_db(config_voting)
                         for doc in docs:
                             if doc["sender_id"] == sender_psid:
-                                doc["timestamp"] = str(datetime.now())
-                                doc["vote"] = message["text"]
+                                result_vote = {
+                                    "timestamp": str(datetime.now()),
+                                    "vote": message["text"]
+                                }
+                                upsert_docs_to_db(result_vote, config_voting)
                             else:
                                 result_vote = {
                                     "sender_id": sender_psid,
@@ -72,3 +75,4 @@ def handle_message(data):
 
     # notify facebook that message is received
     write_http_response(200)
+
