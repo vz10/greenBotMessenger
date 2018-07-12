@@ -1,24 +1,26 @@
 import json
+from datetime import datetime
+
 import redis
 import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import get_docs_from_db, config_options, config_vote
-
-# get options from database
-docs = get_docs_from_db(config_options)
-quick_replies = []
-for doc in docs:
-    reply = {
-        "content_type": "text",
-        "title": str(doc["title"]),
-        "payload": str(doc["payload"])
-    }
-    quick_replies.append(reply)
+from webhook.azure_db import get_docs_from_db, put_docs_to_db, config_options, config_voting
 
 
 def send_response(sender_psid):
+    # get options from database
+    docs = get_docs_from_db(config_options)
+    quick_replies = []
+    for doc in docs:
+        reply = {
+            "content_type": "text",
+            "title": str(doc["title"]),
+            "payload": str(doc["payload"])
+        }
+        quick_replies.append(reply)
+
     request_body = {
         "recipient": {
             "id": sender_psid
@@ -55,10 +57,18 @@ def handle_message(data):
                     if message["text"] == "/vote":
                         send_response(sender_psid)
                     elif message["text"] == "/voting_result":
-                        docs = get_docs_from_db(config_vote)
+                        docs = get_docs_from_db(config_voting)
                         for doc in docs:
                             pass
                     else:
                         pass
+                    if message.get("quick_reply"):
+                        result_vote = {
+                            "sender_id": sender_psid,
+                            "timestamp": datetime.now().strftime("%d-%m-%y %H:%M"),
+                            "vote": message["text"]
+                        }
+                        put_docs_to_db(result_vote, config_voting)
+
     # notify facebook that message is received
     write_http_response(200)
