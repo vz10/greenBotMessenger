@@ -46,37 +46,42 @@ def delete_resources(c, project_name, verbose=False):
 
 
 @task
-def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose=False):
+def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, db_url, db_password, verbose=False):
     if not fb_verify_token:
         fb_verify_token = str(uuid.uuid4())
     r = c.run("az redis list-keys --resource-group {0}-gr --name {0}-rd".format(project_name),
               hide=None if verbose else "out", echo=verbose)
     res_dict = json.loads(r.stdout)
     c.run('az functionapp config appsettings set --name {0}-fn --resource-group {0}-gr --settings '
-          'FB_VERIFY_TOKEN="{1}" FB_PAGE_ACCESS_TOKEN="{2}" REDIS_HOST="{3}" REDIS_PASSWD="{4}"'.format(
+          'FB_VERIFY_TOKEN="{1}" FB_PAGE_ACCESS_TOKEN="{2}" REDIS_HOST="{3}" REDIS_PASSWD="{4}" '
+          'DB_URL="{5}" DB_PASSWORD="{6}"'.format(
             project_name,
             fb_verify_token,
             fb_page_access_token,
             "{}-rd.redis.cache.windows.net".format(project_name),
-            res_dict["primaryKey"]
+            res_dict["primaryKey"],
+            db_url,
+            db_password
           ), hide=None if verbose else "out", echo=verbose)
 
 
 @task
 def deploy(c, project_name, fb_page_access_token=None, fb_verify_token=None, skip_resources_creation=False,
-           verbose=False):
-    if not fb_page_access_token and not skip_resources_creation:
-        print("'deploy' did not receive required positional arguments: '--fb-page-access-token'\n"
-              "You can skip --fb-page-access-token only if use --skip-resources-creation")
-        return 1
+           db_url=None, db_password=None, verbose=False):
 
     if not skip_resources_creation:
+        if not (fb_page_access_token and db_url and db_password):
+            print("'deploy' did not receive some of required arguments: "
+                  "--fb-page-access-token, --db-url, --db-password\n"
+                  "You can skip those arguments only if use --skip-resources-creation")
+            return 1
+
         try:
             _create_resources(c, project_name, verbose)
         except DeploymentError as e:
             delete_resources(c, project_name)
             raise e
-        set_os_env(c, project_name, fb_page_access_token, fb_verify_token, verbose)
+        set_os_env(c, project_name, fb_page_access_token, fb_verify_token, db_url, db_password, verbose)
 
     c.run("zip -FSr greenBotMessenger.zip .", hide=None if verbose else "out", echo=verbose)
     c.run("az functionapp deployment source config-zip --src greenBotMessenger.zip "
@@ -92,7 +97,8 @@ def show_config(c, project_name, verbose=False):
 
     res = {}
     for s in json.loads(r.stdout):
-        if s["name"] in ("REDIS_HOST", "REDIS_PASSWD", "FB_VERIFY_TOKEN", "FB_PAGE_ACCESS_TOKEN"):
+        if s["name"] in ("REDIS_HOST", "REDIS_PASSWD", "FB_VERIFY_TOKEN", "FB_PAGE_ACCESS_TOKEN",
+                         "DB_URL", "DB_PASSWORD"):
             res[s["name"]] = s["value"]
     res["WEBHOOK_URL"] = "https://{}-fn.azurewebsites.net/api/webhook".format(project_name)
     print("\n\n".join(map(lambda k: "{} = {}".format(k, res[k]), res)))
