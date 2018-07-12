@@ -9,6 +9,21 @@ from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
 from webhook.azure_db import get_docs_from_db, put_docs_to_db, quick_replies, results_voting, config_voting
 
 
+def send_results(sender_psid):
+    request_body = {
+        "recipient": {
+            "id": sender_psid
+        },
+        "message": {
+            "text": results_voting(config_voting)},
+    }
+
+    resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                         params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                         headers={'content-type': 'application/json'},
+                         data=json.dumps(request_body))
+
+
 def send_response(sender_psid):
     request_body = {
         "recipient": {
@@ -46,10 +61,7 @@ def handle_message(data):
                     if message["text"] == "/vote":
                         send_response(sender_psid)
                     elif message["text"] == "/voting_result":
-                        requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                                      params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                                      headers={'content-type': 'application/json'},
-                                      data=results_voting(config_voting))
+                        send_results(sender_psid)
                     if message.get("quick_reply"):
                         docs = get_docs_from_db(config_voting)
                         for doc in docs:
