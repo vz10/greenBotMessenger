@@ -8,19 +8,19 @@ from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
 from webhook.azure_db import get_docs_from_db, put_docs_to_db, config_options, config_voting
 
+# get options from database
+docs = get_docs_from_db(config_options)
+quick_replies = []
+for doc in docs:
+    reply = {
+        "content_type": "text",
+        "title": str(doc["title"]),
+        "payload": str(doc["payload"])
+    }
+    quick_replies.append(reply)
+
 
 def send_response(sender_psid):
-    # get options from database
-    docs = get_docs_from_db(config_options)
-    quick_replies = []
-    for doc in docs:
-        reply = {
-            "content_type": "text",
-            "title": str(doc["title"]),
-            "payload": str(doc["payload"])
-        }
-        quick_replies.append(reply)
-
     request_body = {
         "recipient": {
             "id": sender_psid
@@ -63,12 +63,18 @@ def handle_message(data):
                     else:
                         pass
                     if message.get("quick_reply"):
-                        result_vote = {
-                            "sender_id": sender_psid,
-                            "timestamp": datetime.now().strftime("%d-%m-%y %H:%M"),
-                            "vote": message["text"]
-                        }
-                        put_docs_to_db(result_vote, config_voting)
+                        docs = get_docs_from_db(config_voting)
+                        for doc in docs:
+                            if doc["sender_id"] == sender_psid:
+                                doc["timestamp"] = datetime.now(),
+                                doc["vote"] = message["text"]
+                            else:
+                                result_vote = {
+                                    "sender_id": sender_psid,
+                                    "timestamp": datetime.now(),
+                                    "vote": message["text"]
+                                }
+                                put_docs_to_db(result_vote, config_voting)
 
     # notify facebook that message is received
     write_http_response(200)
