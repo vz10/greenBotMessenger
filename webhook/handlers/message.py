@@ -9,35 +9,18 @@ from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
 from webhook.azure_db import get_docs_from_db, put_docs_to_db, quick_replies, results_voting, config_voting
 
 
-def send_results(sender_psid):
+def send_response(sender_psid, message):
     request_body = {
         "recipient": {
             "id": sender_psid
         },
-        "message": {
-            "text": results_voting(config_voting)},
+        "message": message
     }
 
-    resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                         params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                         headers={'content-type': 'application/json'},
-                         data=json.dumps(request_body))
-
-
-def send_response(sender_psid):
-    request_body = {
-        "recipient": {
-            "id": sender_psid
-        },
-        "message": {
-            "text": "What should I do with the plant?",
-            "quick_replies": quick_replies()},
-    }
-
-    resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                         params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                         headers={'content-type': 'application/json'},
-                         data=json.dumps(request_body))
+    requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                  headers={'content-type': 'application/json'},
+                  data=json.dumps(request_body))
 
 
 def handle_message(data):
@@ -58,20 +41,31 @@ def handle_message(data):
                     redis_client.expire(message["mid"], 90)  # expire in 1.5 minutes
 
                     # handle the sender's choice
+
+                    # if sender wants to vote
                     if message["text"] == "/vote":
-                        send_response(sender_psid)
+                        message_body = {
+                            "text": "What should I do with the plant?",
+                            "quick_replies": quick_replies()
+                        }
+                        send_response(sender_psid, message_body)
+
+                    # if sender wants to view results of voting
                     elif message["text"] == "/voting_result":
-                        send_results(sender_psid)
-                    if message.get("quick_reply"):
+                        message_body = {"text": results_voting(config_voting)},
+                        send_response(sender_psid, message_body)
+
+                    # handle voting of sender
+                    elif message.get("quick_reply"):
                         docs = get_docs_from_db(config_voting)
                         for doc in docs:
                             if doc["sender_id"] == sender_psid:
-                                doc["timestamp"] = datetime.now(),
+                                doc["timestamp"] = str(datetime.now())
                                 doc["vote"] = message["text"]
                             else:
                                 result_vote = {
                                     "sender_id": sender_psid,
-                                    "timestamp": datetime.now(),
+                                    "timestamp": str(datetime.now()),
                                     "vote": message["text"]
                                 }
                                 put_docs_to_db(result_vote, config_voting)
