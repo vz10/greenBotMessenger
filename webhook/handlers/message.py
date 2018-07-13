@@ -101,7 +101,8 @@ def handle_message(data):
                 send_response(sender_psid, message_body)
                 send_buttons(sender_psid)
 
-            else:
+            # handle any text from sender
+            elif message and message.get("text") and not is_responced(message["mid"]):
                 send_buttons(sender_psid)
 
     # notify facebook that message is received
