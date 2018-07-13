@@ -64,40 +64,40 @@ def handle_message(data):
     if data.get("object") == "page":
         for entry in data.get("entry"):
             webhook_event = entry["messaging"][0]
+            # from request get payload
+            payload = webhook_event["postback"]["payload"]
             # from request get recipient id
             sender_psid = webhook_event["sender"]["id"]
             # from request get message
             message = webhook_event.get("message")
 
             if message and message.get("text") and not is_responced(message["mid"]):
-                # handle the sender's choice
 
-                # if sender wants to vote
-                if webhook_event["postback"]["payload"] == "vote":
-                    message_body = {
-                        "text": "What should I do with the plant?",
-                        "quick_replies": quick_replies
-                    }
-                    send_response(sender_psid, message_body)
-                    send_buttons(sender_psid)
-
-                # if sender wants to view results of voting
-                elif webhook_event["postback"]["payload"] == "voting_result":
-                    message_body = {"text": results_voting(config_voting)}
-                    send_response(sender_psid, message_body)
-                    send_buttons(sender_psid)
-
-                # handle voting of sender
-                elif message.get("quick_reply"):
+                # handle sender's choice
+                if message.get("quick_reply"):
                     result_vote = get_user_vote_or_empty(sender_psid)
                     result_vote["vote"] = message["text"]
                     result_vote["sender_id"] = sender_psid
                     result_vote["timestamp"] = str(datetime.now())
                     upsert_docs_to_db(result_vote, config_voting)
 
-            # if pushed the start button
-            elif webhook_event.get("postback") and webhook_event["postback"].get("payload") == "get_started" \
-                    and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
+            # handle start button
+            elif payload and payload == "get_started" and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
+                send_buttons(sender_psid)
+
+            # handle vote
+            elif payload and payload == "vote" and not is_responced("greet%s" % sender_psid):
+                message_body = {
+                    "text": "What should I do with the plant?",
+                    "quick_replies": quick_replies
+                }
+                send_response(sender_psid, message_body)
+                send_buttons(sender_psid)
+
+            # handle results of voting
+            elif payload and payload == "voting_result" and not is_responced("greet%s" % sender_psid):
+                message_body = {"text": results_voting(config_voting)}
+                send_response(sender_psid, message_body)
                 send_buttons(sender_psid)
 
     # notify facebook that message is received
