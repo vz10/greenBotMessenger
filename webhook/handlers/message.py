@@ -64,7 +64,7 @@ def handle_message(data):
                         result_vote["timestamp"] = str(datetime.now())
                         upsert_docs_to_db(result_vote, config_voting)
 
-                    elif message.get("get_started"):
+                    elif webhook_event["postback"]["payload"] == "get_started":
                         message_body = {
                             "text": "you push the button"
                         }

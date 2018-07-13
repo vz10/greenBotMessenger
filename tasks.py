@@ -108,10 +108,12 @@ def show_config(c, project_name, verbose=False):
 @task
 def setup_fb_greeting(c, fb_page_access_token, verbose=False):
     request_body_greeting = {
-        "greeting": {
-            "locale": "default",
-            "text": "Welcome, {{user_full_name}}! Let's grow something!"
-        }
+        "greeting": [
+            {
+                "locale": "default",
+                "text": "Welcome, {{user_full_name}}! Let's grow something!"
+            },
+        ]
     }
 
     request_body_get_started = {
