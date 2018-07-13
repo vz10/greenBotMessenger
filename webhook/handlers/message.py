@@ -100,5 +100,8 @@ def handle_message(data):
                 send_response(sender_psid, message_body)
                 send_buttons(sender_psid)
 
+            else:
+                send_buttons(sender_psid)
+
     # notify facebook that message is received
     write_http_response(200)
