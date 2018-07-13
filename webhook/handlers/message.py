@@ -47,7 +47,7 @@ def handle_message(data):
                     if message["text"] == "/vote":
                         message_body = {
                             "text": "What should I do with the plant?",
-                            "quick_replies": quick_replies()
+                            "quick_replies": quick_replies
                         }
                         send_response(sender_psid, message_body)
 
@@ -64,6 +64,11 @@ def handle_message(data):
                         result_vote["timestamp"] = str(datetime.now())
                         upsert_docs_to_db(result_vote, config_voting)
 
+                    elif message.get("get_started"):
+                        message_body = {
+                            "text": "you push the button"
+                        }
+                        send_response(sender_psid, message_body)
+
     # notify facebook that message is received
     write_http_response(200)
-

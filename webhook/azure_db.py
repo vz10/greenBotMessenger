@@ -61,7 +61,7 @@ def upsert_docs_to_db(doc, config):
     client.UpsertDocument(collection_link, doc)
 
 
-def quick_replies():
+def get_quick_replies():
     """
     Get options for voting from database and create a dictionary with quick replies
     :return: dictionary with quick replies
@@ -78,6 +78,9 @@ def quick_replies():
     return quick_replies
 
 
+quick_replies = get_quick_replies()
+
+
 def results_voting(config):
     """
     Get a count of each vote and create a result of voting
@@ -86,12 +89,12 @@ def results_voting(config):
     """
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
-    docs = quick_replies()
+    docs = quick_replies
     result = ""
     for doc in docs:
         query = "SELECT VALUE COUNT(1) FROM Votings v WHERE v.vote = '{0}'".format(doc["title"])
         count = list(client.QueryDocuments(collection_link, query))[0]
-        result += doc["title"] + " = " + str(count) + "\n"
+        result += "{0} = {1} \n".format(doc["title"], str(count))
     return result
 
 
