@@ -6,7 +6,8 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, get_user_vote_or_empty
+from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, get_user_vote_or_empty, \
+    sensors_latest
 
 
 def send_response(sender_psid, message):
@@ -33,12 +34,17 @@ def send_buttons(sender_psid):
                 "buttons": [
                     {
                         "type": "postback",
+                        "title": "see sensors data",
+                        "payload": "sensors_latest"
+                    },
+                    {
+                        "type": "postback",
                         "title": "vote",
                         "payload": "vote"
                     },
                     {
                         "type": "postback",
-                        "title": "results",
+                        "title": "see voting results",
                         "payload": "voting_result"
                     },
                 ]
@@ -83,22 +89,28 @@ def handle_message(data):
                 send_buttons(sender_psid)
 
             # handle start button
-            elif postback.get("payload") == "get_started" and not is_processed("{}{}".format(sender_psid, timestamp)):
-                send_buttons(sender_psid)
+            elif postback and not is_processed("{}{}".format(sender_psid, timestamp)):
+                if postback.get("payload") == "get_started":
+                    send_buttons(sender_psid)
 
-            # handle vote
-            elif postback.get("payload") == "vote" and not is_processed("{}{}".format(sender_psid, timestamp)):
-                message_body = {
-                    "text": "What should I do with the plant?",
-                    "quick_replies": quick_replies
-                }
-                send_response(sender_psid, message_body)
+                # handle vote
+                elif postback.get("payload") == "vote":
+                    message_body = {
+                        "text": "What should I do with the plant?",
+                        "quick_replies": quick_replies
+                    }
+                    send_response(sender_psid, message_body)
 
-            # handle results of voting
-            elif postback.get("payload") == "voting_result" and not is_processed("{}{}".format(sender_psid, timestamp)):
-                message_body = {"text": results_voting(config_voting)}
-                send_response(sender_psid, message_body)
-                send_buttons(sender_psid)
+                # handle results of voting
+                elif postback.get("payload") == "voting_result":
+                    message_body = {"text": results_voting(config_voting)}
+                    send_response(sender_psid, message_body)
+                    send_buttons(sender_psid)
+
+                elif postback.get("payload") == "sensors_latest":
+                    message_body = {"text": sensors_latest()}
+                    send_response(sender_psid, message_body)
+                    send_buttons(sender_psid)
 
             # handle any text from sender
             elif message.get("text") and not is_processed(message["mid"]):

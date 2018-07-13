@@ -19,6 +19,10 @@ config_voting = {
     "COSMOS_DATABASE": "voting",
     "COSMOS_COLLECTION": "votingData"
 }
+config_sensors = {
+    "COSMOS_DATABASE": "sensors",
+    "COSMOS_COLLECTION": "sensorData"
+}
 
 # connection to database Azure CosmosDB
 client = document_client.DocumentClient(DB_URL, {"masterKey": DB_PASSWORD})
@@ -95,6 +99,15 @@ def results_voting(config):
     if c:
         return "\n".join('{} = {}'.format(vote, count) for vote, count in c.most_common())
     return "No votes"
+
+
+def sensors_latest():
+    collection_link = "/".join(("dbs", config_sensors["COSMOS_DATABASE"], "colls", config_sensors["COSMOS_COLLECTION"]))
+    query = "SELECT TOP 1 * FROM Sensors s ORDER BY s.timestamp DESC"
+    res = list(client.QueryDocuments(collection_link, query))
+    if res:
+        res = res[0]
+        return "temperature: {}, humidity: {}".format(res["temp"], res["humidity"])
 
 
 def get_user_vote_or_empty(sender_id):
