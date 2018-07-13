@@ -44,7 +44,7 @@ def handle_message(data):
                     # handle the sender's choice
 
                     # if sender wants to vote
-                    if message["text"] == "/vote":
+                    if message["text"] == "vote":
                         message_body = {
                             "text": "What should I do with the plant?",
                             "quick_replies": quick_replies
@@ -52,7 +52,7 @@ def handle_message(data):
                         send_response(sender_psid, message_body)
 
                     # if sender wants to view results of voting
-                    elif message["text"] == "/voting_result":
+                    elif message["text"] == "voting_result":
                         message_body = {"text": results_voting(config_voting)}
                         send_response(sender_psid, message_body)
 
@@ -64,11 +64,34 @@ def handle_message(data):
                         result_vote["timestamp"] = str(datetime.now())
                         upsert_docs_to_db(result_vote, config_voting)
 
-                    elif webhook_event["postback"]["payload"] == "get_started":
-                        message_body = {
-                            "text": "you push the button"
-                        }
-                        send_response(sender_psid, message_body)
+            # if pushed the start button
+            elif webhook_event["postback"]["payload"] == "get_started":
+                message_body = {
+                    "text": "you push the button"
+                }
+                # message_body = {
+                #     "attachment": {
+                #         "type": "template",
+                #         "payload": {
+                #             "template_type": "button",
+                #             "text": "What do you want to do next?",
+                #             "buttons": [
+                #                 {
+                #                     "type": "postback",
+                #                     "title": "vote",
+                #                     "payload": "vote"
+                #                 },
+                #                 {
+                #                     "type": "postback",
+                #                     "title": "results",
+                #                     "payload": "voting_result"
+                #                 },
+                #             ]
+                #         }
+                #     }
+                # }
+                send_response(sender_psid, message_body)
 
     # notify facebook that message is received
     write_http_response(200)
+
