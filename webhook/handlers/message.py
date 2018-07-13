@@ -48,7 +48,7 @@ def send_buttons(sender_psid):
     send_response(sender_psid, message_body)
 
 
-def is_responced(id):
+def is_processed(id):
     # this function is used to avoid responses duplication:
     # facebook resend events to the webhook if doesn't get 200 response in 20 seconds
     # so on function cold start bot may get duplicated messages
@@ -65,30 +65,29 @@ def handle_message(data):
         for entry in data.get("entry"):
             webhook_event = entry["messaging"][0]
             # from request get postback
-            postback = webhook_event["postback"]
+            postback = webhook_event.get("postback", {})
             # from request get recipient id
             sender_psid = webhook_event["sender"]["id"]
+            timestamp = webhook_event.get("timestamp")
             # from request get message
-            message = webhook_event.get("message")
+            message = webhook_event.get("message", {})
 
-            if message and message.get("text") and not is_responced(message["mid"]):
+            if message.get("quick_reply") and not is_processed(message["mid"]):
 
                 # handle sender's choice
-                if message.get("quick_reply"):
-                    result_vote = get_user_vote_or_empty(sender_psid)
-                    result_vote["vote"] = message["text"]
-                    result_vote["sender_id"] = sender_psid
-                    result_vote["timestamp"] = str(datetime.now())
-                    upsert_docs_to_db(result_vote, config_voting)
-                    send_buttons(sender_psid)
+                result_vote = get_user_vote_or_empty(sender_psid)
+                result_vote["vote"] = message["text"]
+                result_vote["sender_id"] = sender_psid
+                result_vote["timestamp"] = str(datetime.now())
+                upsert_docs_to_db(result_vote, config_voting)
+                send_buttons(sender_psid)
 
             # handle start button
-            elif postback and postback.get("payload") == "get_started" \
-                    and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
+            elif postback.get("payload") == "get_started" and not is_processed("{}{}".format(sender_psid, timestamp)):
                 send_buttons(sender_psid)
 
             # handle vote
-            elif postback and postback.get("payload") == "vote" and not is_responced("greet%s" % sender_psid):
+            elif postback.get("payload") == "vote" and not is_processed("{}{}".format(sender_psid, timestamp)):
                 message_body = {
                     "text": "What should I do with the plant?",
                     "quick_replies": quick_replies
@@ -96,13 +95,13 @@ def handle_message(data):
                 send_response(sender_psid, message_body)
 
             # handle results of voting
-            elif postback and postback.get("payload") == "voting_result" and not is_responced("greet%s" % sender_psid):
+            elif postback.get("payload") == "voting_result" and not is_processed("{}{}".format(sender_psid, timestamp)):
                 message_body = {"text": results_voting(config_voting)}
                 send_response(sender_psid, message_body)
                 send_buttons(sender_psid)
 
             # handle any text from sender
-            elif message and message.get("text") and not is_responced(message["mid"]):
+            elif message.get("text") and not is_processed(message["mid"]):
                 send_buttons(sender_psid)
 
     # notify facebook that message is received
