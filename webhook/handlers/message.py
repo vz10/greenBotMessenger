@@ -17,10 +17,35 @@ def send_response(sender_psid, message):
         "message": message
     }
 
-    resp = requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                         params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                         headers={'content-type': 'application/json'},
-                         data=json.dumps(request_body))
+    requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                  headers={'content-type': 'application/json'},
+                  data=json.dumps(request_body))
+
+
+def send_buttons(sender_psid):
+    message_body = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "button",
+                "text": "What do you want to do next?",
+                "buttons": [
+                    {
+                        "type": "postback",
+                        "title": "vote",
+                        "payload": "vote"
+                    },
+                    {
+                        "type": "postback",
+                        "title": "results",
+                        "payload": "voting_result"
+                    },
+                ]
+            }
+        }
+    }
+    send_response(sender_psid, message_body)
 
 
 def is_responced(id):
@@ -48,17 +73,19 @@ def handle_message(data):
                 # handle the sender's choice
 
                 # if sender wants to vote
-                if message["text"] == "vote":
+                if webhook_event["postback"]["payload"] == "vote":
                     message_body = {
                         "text": "What should I do with the plant?",
                         "quick_replies": quick_replies
                     }
                     send_response(sender_psid, message_body)
+                    send_buttons(sender_psid)
 
                 # if sender wants to view results of voting
-                elif message["text"] == "voting_result":
+                elif webhook_event["postback"]["payload"] == "voting_result":
                     message_body = {"text": results_voting(config_voting)}
                     send_response(sender_psid, message_body)
+                    send_buttons(sender_psid)
 
                 # handle voting of sender
                 elif message.get("quick_reply"):
@@ -69,31 +96,9 @@ def handle_message(data):
                     upsert_docs_to_db(result_vote, config_voting)
 
             # if pushed the start button
-            elif webhook_event.get("postback") and webhook_event["postback"].get("payload") == "get_started"\
+            elif webhook_event.get("postback") and webhook_event["postback"].get("payload") == "get_started" \
                     and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
-
-                message_body = {
-                     "attachment": {
-                         "type": "template",
-                         "payload": {
-                             "template_type": "button",
-                             "text": "What do you want to do next?",
-                             "buttons": [
-                                 {
-                                     "type": "postback",
-                                     "title": "vote",
-                                     "payload": "vote"
-                                 },
-                                 {
-                                     "type": "postback",
-                                     "title": "results",
-                                     "payload": "voting_result"
-                                 },
-                             ]
-                         }
-                     }
-                }
-                send_response(sender_psid, message_body)
+                send_buttons(sender_psid)
 
     # notify facebook that message is received
     write_http_response(200)
