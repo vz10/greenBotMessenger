@@ -64,8 +64,8 @@ def handle_message(data):
     if data.get("object") == "page":
         for entry in data.get("entry"):
             webhook_event = entry["messaging"][0]
-            # from request get payload
-            payload = webhook_event["postback"]["payload"]
+            # from request get postback
+            postback = webhook_event["postback"]
             # from request get recipient id
             sender_psid = webhook_event["sender"]["id"]
             # from request get message
@@ -82,11 +82,12 @@ def handle_message(data):
                     upsert_docs_to_db(result_vote, config_voting)
 
             # handle start button
-            elif payload and payload == "get_started" and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
+            elif postback and postback.get("payload") == "get_started" \
+                    and not is_responced("greet%s" % sender_psid):  # prefix is used to avoid collisions with message id
                 send_buttons(sender_psid)
 
             # handle vote
-            elif payload and payload == "vote" and not is_responced("greet%s" % sender_psid):
+            elif postback and postback.get("payload") == "vote" and not is_responced("greet%s" % sender_psid):
                 message_body = {
                     "text": "What should I do with the plant?",
                     "quick_replies": quick_replies
@@ -95,7 +96,7 @@ def handle_message(data):
                 send_buttons(sender_psid)
 
             # handle results of voting
-            elif payload and payload == "voting_result" and not is_responced("greet%s" % sender_psid):
+            elif postback and postback.get("payload") == "voting_result" and not is_responced("greet%s" % sender_psid):
                 message_body = {"text": results_voting(config_voting)}
                 send_response(sender_psid, message_body)
                 send_buttons(sender_psid)
