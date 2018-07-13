@@ -1,3 +1,4 @@
+from collections import Counter
 import os
 
 from pydocumentdb import document_client
@@ -89,13 +90,11 @@ def results_voting(config):
     """
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
-    docs = quick_replies
-    result = ""
-    for doc in docs:
-        query = "SELECT VALUE COUNT(1) FROM Votings v WHERE v.vote = '{0}'".format(doc["title"])
-        count = list(client.QueryDocuments(collection_link, query))[0]
-        result += "{0} = {1} \n".format(doc["title"], str(count))
-    return result
+    query = "SELECT VALUE v.vote FROM Votings v"
+    c = Counter(client.QueryDocuments(collection_link, query))
+    if c:
+        return "\n".join('{} = {}'.format(vote, count) for vote, count in c.most_common())
+    return "No votes"
 
 
 def get_user_vote_or_empty(sender_id):
