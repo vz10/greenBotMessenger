@@ -80,6 +80,7 @@ def handle_message(data):
                     result_vote["sender_id"] = sender_psid
                     result_vote["timestamp"] = str(datetime.now())
                     upsert_docs_to_db(result_vote, config_voting)
+                    send_buttons(sender_psid)
 
             # handle start button
             elif postback and postback.get("payload") == "get_started" \
@@ -93,7 +94,6 @@ def handle_message(data):
                     "quick_replies": quick_replies
                 }
                 send_response(sender_psid, message_body)
-                send_buttons(sender_psid)
 
             # handle results of voting
             elif postback and postback.get("payload") == "voting_result" and not is_responced("greet%s" % sender_psid):
