@@ -106,7 +106,7 @@ def show_config(c, project_name, verbose=False):
 
 
 @task
-def greeting():
+def setup_fb_greeting(c, fb_page_access_token, verbose=False):
     request_body_greeting = {
         "greeting": {
             "locale": "default",
@@ -118,12 +118,16 @@ def greeting():
         "get_started": {"payload": "get_started"}
     }
 
-    requests.post(url="https://graph.facebook.com/v2.6/me/messenger_profile",
-                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                  headers={'content-type': 'application/json'},
-                  data=json.dumps(request_body_greeting))
+    res = requests.post(url="https://graph.facebook.com/v2.6/me/messenger_profile",
+                        params={"access_token": fb_page_access_token},
+                        headers={'content-type': 'application/json'},
+                        data=json.dumps(request_body_greeting))
+    if verbose:
+        print res.content
 
-    requests.post(url="https://graph.facebook.com/v2.6/me/messenger_profile",
-                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                  headers={'content-type': 'application/json'},
-                  data=json.dumps(request_body_get_started))
+    res = requests.post(url="https://graph.facebook.com/v2.6/me/messenger_profile",
+                        params={"access_token": fb_page_access_token},
+                        headers={'content-type': 'application/json'},
+                        data=json.dumps(request_body_get_started))
+    if verbose:
+        print res.content
