@@ -99,7 +99,8 @@ def results_voting(config):
     query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
-        return "\n".join('{} for {}'.format(count, vote) for count, vote in c.most_common())
+        return "\n".join(
+            "{} for '{}' {}".format(count, vote.split()[0], vote.split()[1]) for vote, count in c.most_common())
     return "No votes"
 
 
