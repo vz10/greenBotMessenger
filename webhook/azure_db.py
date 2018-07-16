@@ -30,26 +30,6 @@ config_sensors = {
 client = document_client.DocumentClient(DB_URL, {"masterKey": DB_PASSWORD})
 
 
-def get_quick_replies():
-    """
-    Get options for voting from database and create a dictionary with quick replies
-    :return: dictionary with quick replies
-    """
-    docs = get_docs_from_db(config_options)
-    quick_replies = []
-    for doc in docs:
-        reply = {
-            "content_type": "text",
-            "title": doc["title"],
-            "payload": doc["payload"]
-        }
-        quick_replies.append(reply)
-    return quick_replies
-
-
-quick_replies = get_quick_replies()
-
-
 def get_docs_from_db(config):
     """
     Function for get documents from collection in the database
@@ -86,6 +66,26 @@ def upsert_docs_to_db(doc, config):
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
     client.UpsertDocument(collection_link, doc)
+
+
+def get_quick_replies():
+    """
+    Get options for voting from database and create a dictionary with quick replies
+    :return: dictionary with quick replies
+    """
+    docs = get_docs_from_db(config_options)
+    quick_replies = []
+    for doc in docs:
+        reply = {
+            "content_type": "text",
+            "title": doc["title"],
+            "payload": doc["payload"]
+        }
+        quick_replies.append(reply)
+    return quick_replies
+
+
+quick_replies = get_quick_replies()
 
 
 def results_voting(config):
