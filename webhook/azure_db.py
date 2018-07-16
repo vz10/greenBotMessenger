@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from collections import Counter
 import os
 
@@ -76,8 +78,8 @@ def get_quick_replies():
     for doc in docs:
         reply = {
             "content_type": "text",
-            "title": str(doc["title"]),
-            "payload": str(doc["payload"])
+            "title": doc["title"],
+            "payload": doc["payload"]
         }
         quick_replies.append(reply)
     return quick_replies
