@@ -88,23 +88,6 @@ def get_quick_replies():
 quick_replies = get_quick_replies()
 
 
-def get_characters(replies):
-    """
-    Get all existing characteristics
-    :param replies: all options for voting from database
-    :return: set with all characteristics
-    """
-    all_characters = []
-    characters = set()
-    for doc in replies:
-        words = doc["payload"].split("_")
-        for word in words:
-            if word != u"more" and word != u"less":
-                all_characters.append(word)
-        characters = set(all_characters)
-    return characters
-
-
 def results_voting(config):
     """
     Get a count of each vote and create a result of voting
@@ -116,25 +99,8 @@ def results_voting(config):
     query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
-        return "\n".join('{} = {}'.format(vote.encode('utf-8'), count) for vote, count in c.most_common())
+        return "\n".join('{} for {}'.format(count, vote) for count, vote in c.most_common())
     return "No votes"
-
-    # query = "SELECT VALUE v.payload FROM Votings v"
-    # characters = get_characters(quick_replies)
-    # c = Counter(client.QueryDocuments(collection_link, query))
-    # print c.most_common()
-    # if c:
-    #     result = ""
-    #     exist_chars = {}
-    #     for character in characters:
-    #         for counter in c.most_common():
-    #             if character in counter[0]:
-    #                 if "more" in counter[0]:
-    #                     exist_chars[character] = {"➕": counter[1]}
-    #                 elif "less" in counter[0]:
-    #                     exist_chars[character] = {"➖": counter[1]}
-    #     return exist_chars
-    # return "No votes"
 
 
 print results_voting(config_voting)
