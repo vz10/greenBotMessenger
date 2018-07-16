@@ -36,17 +36,17 @@ def send_buttons(sender_psid):
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "see sensors data",
+                        "title": "See sensors data",
                         "payload": "sensors_latest"
                     },
                     {
                         "type": "postback",
-                        "title": "vote",
+                        "title": "Vote",
                         "payload": "vote"
                     },
                     {
                         "type": "postback",
-                        "title": "see voting results",
+                        "title": "See voting results",
                         "payload": "voting_result"
                     },
                 ]
