@@ -30,6 +30,26 @@ config_sensors = {
 client = document_client.DocumentClient(DB_URL, {"masterKey": DB_PASSWORD})
 
 
+def get_quick_replies():
+    """
+    Get options for voting from database and create a dictionary with quick replies
+    :return: dictionary with quick replies
+    """
+    docs = get_docs_from_db(config_options)
+    quick_replies = []
+    for doc in docs:
+        reply = {
+            "content_type": "text",
+            "title": doc["title"],
+            "payload": doc["payload"]
+        }
+        quick_replies.append(reply)
+    return quick_replies
+
+
+quick_replies = get_quick_replies()
+
+
 def get_docs_from_db(config):
     """
     Function for get documents from collection in the database
@@ -68,26 +88,6 @@ def upsert_docs_to_db(doc, config):
     client.UpsertDocument(collection_link, doc)
 
 
-def get_quick_replies():
-    """
-    Get options for voting from database and create a dictionary with quick replies
-    :return: dictionary with quick replies
-    """
-    docs = get_docs_from_db(config_options)
-    quick_replies = []
-    for doc in docs:
-        reply = {
-            "content_type": "text",
-            "title": doc["title"],
-            "payload": doc["payload"]
-        }
-        quick_replies.append(reply)
-    return quick_replies
-
-
-quick_replies = get_quick_replies()
-
-
 def results_voting(config):
     """
     Get a count of each vote and create a result of voting
@@ -104,6 +104,10 @@ def results_voting(config):
 
 
 def sensors_latest():
+    """
+    Get sensors data
+    :return: dictionary with data of sensors
+    """
     collection_link = "/".join(("dbs", config_sensors["COSMOS_DATABASE"], "colls", config_sensors["COSMOS_COLLECTION"]))
     query = "SELECT TOP 1 * FROM Sensors s ORDER BY s.timestamp DESC"
     res = list(client.QueryDocuments(collection_link, query))
@@ -113,6 +117,11 @@ def sensors_latest():
 
 
 def get_user_vote_or_empty(sender_id):
+    """
+    Get vote of user
+    :param sender_id: the id of sender
+    :return: list of user vote
+    """
     collection_link = "/".join(("dbs", config_voting["COSMOS_DATABASE"], "colls", config_voting["COSMOS_COLLECTION"]))
     query = "SELECT * FROM Votings v WHERE v.sender_id = '{0}'".format(sender_id)
     res = list(client.QueryDocuments(collection_link, query))

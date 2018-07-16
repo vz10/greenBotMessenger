@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 from datetime import datetime
 
@@ -82,8 +84,11 @@ def handle_message(data):
                 # handle sender's choice
                 result_vote = get_user_vote_or_empty(sender_psid)
                 result_vote["vote"] = message["text"]
+                result_vote["payload"] = message["quick_reply"]["payload"]
                 result_vote["sender_id"] = sender_psid
                 result_vote["timestamp"] = str(datetime.now())
+                print("result_vote: ")
+                print(result_vote)
                 upsert_docs_to_db(result_vote, config_voting)
                 send_buttons(sender_psid)
 
