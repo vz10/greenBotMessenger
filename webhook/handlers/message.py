@@ -87,8 +87,6 @@ def handle_message(data):
                 result_vote["payload"] = message["quick_reply"]["payload"]
                 result_vote["sender_id"] = sender_psid
                 result_vote["timestamp"] = str(datetime.now())
-                print("result_vote: ")
-                print(result_vote)
                 upsert_docs_to_db(result_vote, config_voting)
                 send_buttons(sender_psid)
 

@@ -96,11 +96,25 @@ def results_voting(config):
     """
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
-    query = "SELECT VALUE v.vote FROM Votings v"
+    # query = "SELECT VALUE v.vote FROM Votings v"
+    # c = Counter(client.QueryDocuments(collection_link, query))
+    # if c:
+    #     return "\n".join('{} = {}'.format(vote.encode('utf-8'), count) for vote, count in c.most_common())
+    # return "No votes"
+
+    query = "SELECT VALUE v.payload FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
-        return "\n".join('{} = {}'.format(vote, count) for vote, count in c.most_common())
+        result = ""
+        for doc in quick_replies:
+            for counter in c.most_common():
+                if counter[0] == doc["payload"]:
+                    result += "{} = {} \n".format(doc["title"].encode("utf8"), counter[1])
+        return result
     return "No votes"
+
+
+print results_voting(config_voting)
 
 
 def sensors_latest():
