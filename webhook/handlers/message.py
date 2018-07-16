@@ -8,7 +8,8 @@ import requests
 
 from azfunc_helper import write_http_response
 from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, get_user_vote_or_empty, \
+from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, config_sensors, \
+    get_user_vote_or_empty, \
     sensors_latest
 
 
@@ -110,7 +111,7 @@ def handle_message(data):
                     send_buttons(sender_psid)
 
                 elif postback.get("payload") == "sensors_latest":
-                    message_body = {"text": sensors_latest()}
+                    message_body = {"text": sensors_latest(config_sensors)}
                     send_response(sender_psid, message_body)
                     send_buttons(sender_psid)
 
