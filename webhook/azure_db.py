@@ -96,7 +96,7 @@ def results_voting(config):
     """
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
-    query = "SELECT VALUE v.payload FROM Votings v"
+    query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
         return "\n".join('{} = {}'.format(vote, count) for vote, count in c.most_common())
