@@ -74,18 +74,35 @@ def get_quick_replies():
     :return: dictionary with quick replies
     """
     docs = get_docs_from_db(config_options)
-    quick_replies = []
+    replies = []
     for doc in docs:
         reply = {
             "content_type": "text",
             "title": doc["title"],
             "payload": doc["payload"]
         }
-        quick_replies.append(reply)
-    return quick_replies
+        replies.append(reply)
+    return replies
 
 
 quick_replies = get_quick_replies()
+
+
+def get_characters(replies):
+    """
+    Get all existing characteristics
+    :param replies: all options for voting from database
+    :return: set with all characteristics
+    """
+    all_characters = []
+    characters = set()
+    for doc in replies:
+        words = doc["payload"].split("_")
+        for word in words:
+            if word != u"more" and word != u"less":
+                all_characters.append(word)
+        characters = set(all_characters)
+    return characters
 
 
 def results_voting(config):
@@ -96,38 +113,44 @@ def results_voting(config):
     """
     values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
-    # query = "SELECT VALUE v.vote FROM Votings v"
-    # c = Counter(client.QueryDocuments(collection_link, query))
-    # if c:
-    #     return "\n".join('{} = {}'.format(vote.encode('utf-8'), count) for vote, count in c.most_common())
-    # return "No votes"
-
-    query = "SELECT VALUE v.payload FROM Votings v"
+    query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
-        result = ""
-        for doc in quick_replies:
-            for counter in c.most_common():
-                if counter[0] == doc["payload"]:
-                    result += "{} = {} \n".format(doc["title"].encode("utf8"), counter[1])
-        return result
+        return "\n".join('{} = {}'.format(vote.encode('utf-8'), count) for vote, count in c.most_common())
     return "No votes"
+
+    # query = "SELECT VALUE v.payload FROM Votings v"
+    # characters = get_characters(quick_replies)
+    # c = Counter(client.QueryDocuments(collection_link, query))
+    # print c.most_common()
+    # if c:
+    #     result = ""
+    #     exist_chars = {}
+    #     for character in characters:
+    #         for counter in c.most_common():
+    #             if character in counter[0]:
+    #                 if "more" in counter[0]:
+    #                     exist_chars[character] = {"➕": counter[1]}
+    #                 elif "less" in counter[0]:
+    #                     exist_chars[character] = {"➖": counter[1]}
+    #     return exist_chars
+    # return "No votes"
 
 
 print results_voting(config_voting)
 
 
-def sensors_latest():
+def sensors_latest(config):
     """
     Get sensors data
     :return: dictionary with data of sensors
     """
-    collection_link = "/".join(("dbs", config_sensors["COSMOS_DATABASE"], "colls", config_sensors["COSMOS_COLLECTION"]))
+    collection_link = "/".join(("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"]))
     query = "SELECT TOP 1 * FROM Sensors s ORDER BY s.timestamp DESC"
     res = list(client.QueryDocuments(collection_link, query))
     if res:
         res = res[0]
-        return "temperature: {:.1f}, humidity: {:.1f}".format(res["temp"], res["humidity"])
+        return "temperature: {:.1f}\nhumidity: {:.1f}".format(res["temp"], res["humidity"])
 
 
 def get_user_vote_or_empty(sender_id):
