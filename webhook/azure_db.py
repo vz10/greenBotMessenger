@@ -104,9 +104,6 @@ def results_voting(config):
     return "No votes"
 
 
-print results_voting(config_voting)
-
-
 def sensors_latest(config):
     """
     Get sensors data
