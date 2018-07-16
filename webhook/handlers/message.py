@@ -1,30 +1,13 @@
 # -*- coding: utf-8 -*-
-
-import json
 from datetime import datetime
 
 import redis
-import requests
 
-from azfunc_helper import write_http_response
-from config import FB_PAGE_ACCESS_TOKEN, REDIS_HOST, REDIS_PASSWD
-from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, config_sensors, \
-    get_user_vote_or_empty, \
+from common.azfunc_helper import write_http_response
+from common.fb_message import send_fb_message
+from common.config import REDIS_HOST, REDIS_PASSWD
+from common.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, get_user_vote_or_empty, \
     sensors_latest
-
-
-def send_response(sender_psid, message):
-    request_body = {
-        "recipient": {
-            "id": sender_psid
-        },
-        "message": message
-    }
-
-    requests.post(url="https://graph.facebook.com/v2.6/me/messages",
-                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
-                  headers={'content-type': 'application/json'},
-                  data=json.dumps(request_body))
 
 
 def send_buttons(sender_psid):
@@ -54,7 +37,7 @@ def send_buttons(sender_psid):
             }
         }
     }
-    send_response(sender_psid, message_body)
+    send_fb_message(sender_psid, message_body)
 
 
 def is_processed(id):
@@ -102,17 +85,17 @@ def handle_message(data):
                         "text": "What should I do with the plant?",
                         "quick_replies": quick_replies
                     }
-                    send_response(sender_psid, message_body)
+                    send_fb_message(sender_psid, message_body)
 
                 # handle results of voting
                 elif postback.get("payload") == "voting_result":
-                    message_body = {"text": results_voting(config_voting)}
-                    send_response(sender_psid, message_body)
+                    message_body = {"text": results_voting()}
+                    send_fb_message(sender_psid, message_body)
                     send_buttons(sender_psid)
 
                 elif postback.get("payload") == "sensors_latest":
-                    message_body = {"text": sensors_latest(config_sensors)}
-                    send_response(sender_psid, message_body)
+                    message_body = {"text": sensors_latest()}
+                    send_fb_message(sender_psid, message_body)
                     send_buttons(sender_psid)
 
             # handle any text from sender

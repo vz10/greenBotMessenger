@@ -1,7 +1,6 @@
 import json
 import uuid
 
-from config import FB_PAGE_ACCESS_TOKEN
 import requests
 from invoke.watchers import Responder
 from invoke import task
