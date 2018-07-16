@@ -68,8 +68,7 @@ def is_processed(id):
 
 def handle_message(data):
     if data.get("object") == "page":
-        for entry in data.get("entry"):
-            webhook_event = entry["messaging"][0]
+        for webhook_event in [entry["messaging"][0] for entry in data.get("entry") if "messaging" in entry]:
             # from request get postback
             postback = webhook_event.get("postback", {})
             # from request get recipient id

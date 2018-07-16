@@ -107,7 +107,7 @@ def sensors_latest():
     res = list(client.QueryDocuments(collection_link, query))
     if res:
         res = res[0]
-        return "temperature: {}, humidity: {}".format(res["temp"], res["humidity"])
+        return "temperature: {:.1f}, humidity: {:.1f}".format(res["temp"], res["humidity"])
 
 
 def get_user_vote_or_empty(sender_id):
