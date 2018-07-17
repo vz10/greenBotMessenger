@@ -103,7 +103,7 @@ def results_voting(config):
         result = ""
         for v, c in c.most_common():
             count = "{:.1f}".format(float(c * 100) / total) if float(c * 100) % total != 0 else c * 100 / total
-            result += "{}% for '{}' {}\n".format(count, v.split()[0], v.split()[1])
+            result += "{}% for '{}' {}\n".format(count, v.split()[-2], v.split()[-1])
         return result
     return "No votes"
 
