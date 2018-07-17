@@ -33,21 +33,21 @@ def send_buttons(sender_psid):
             "type": "template",
             "payload": {
                 "template_type": "button",
-                "text": "🌿 What do you want to do next?",
+                "text": "What do you want to do next?",
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "See sensors data",
+                        "title": "Show sensors data 🎛️",
                         "payload": "sensors_latest"
                     },
                     {
                         "type": "postback",
-                        "title": "Vote",
+                        "title": "Vote ✍️",
                         "payload": "vote"
                     },
                     {
                         "type": "postback",
-                        "title": "See voting results",
+                        "title": "Show voting results 📊",
                         "payload": "voting_result"
                     },
                 ]
@@ -99,7 +99,7 @@ def handle_message(data):
                 # handle vote
                 elif postback.get("payload") == "vote":
                     message_body = {
-                        "text": "What should I do with the plant?",
+                        "text": "🌿 🌻 ☘️ What should I do with the plant?",
                         "quick_replies": quick_replies
                     }
                     send_response(sender_psid, message_body)
