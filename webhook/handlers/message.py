@@ -16,7 +16,7 @@ def send_buttons(sender_psid):
             "type": "template",
             "payload": {
                 "template_type": "button",
-                "text": "What do you want to do next?",
+                "text": "🌿 What do you want to do next?",
                 "buttons": [
                     {
                         "type": "postback",
