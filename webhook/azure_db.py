@@ -99,8 +99,12 @@ def results_voting(config):
     query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
     if c:
-        return "\n".join(
-            "{} for '{}' {}".format(count, vote.split()[0], vote.split()[1]) for vote, count in c.most_common())
+        total = reduce((lambda votes, count: votes + count), (count for v, count in c.most_common()))
+        result = ""
+        for v, c in c.most_common():
+            count = "{:.1f}".format(float(c * 100) / total) if float(c * 100) % total != 0 else c * 100 / total
+            result += "{}% for '{}' {}\n".format(count, v.split()[0], v.split()[1])
+        return result
     return "No votes"
 
 
