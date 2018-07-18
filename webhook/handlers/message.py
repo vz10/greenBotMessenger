@@ -18,7 +18,8 @@ def send_response(sender_psid, message):
         "recipient": {
             "id": sender_psid
         },
-        "message": message
+        "message": message,
+        "sender_action": "typing_on"
     }
 
     requests.post(url="https://graph.facebook.com/v2.6/me/messages",
@@ -33,7 +34,7 @@ def send_buttons(sender_psid):
             "type": "template",
             "payload": {
                 "template_type": "button",
-                "text": "☘️ What do you want to do next?",
+                "text": "{{user_full_name}}, what do you want to do next?",
                 "buttons": [
                     {
                         "type": "postback",
