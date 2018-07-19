@@ -5,7 +5,7 @@ import unittest
 
 from mock import patch, mock_open
 
-from azfunc_helper import HttpRequest, write_http_response
+from common.azfunc_helper import HttpRequest, write_http_response
 
 
 @contextmanager

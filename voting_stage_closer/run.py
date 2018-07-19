@@ -5,16 +5,18 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../venv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from common.azfunc_helper import HttpRequest  # noqa
-from handlers import handle_token, handle_message  # noqa
+from common.fb_message import send_fb_message
+
+
+def handle_iot_message():
+    pass
 
 
 def process_request():
     request = HttpRequest()
 
-    if request.method == 'GET':
-        handle_token(request.GET)
-    elif request.method == 'POST':
-        handle_message(request.POST)
+    if request.method == 'POST':
+        handle_iot_message(request.POST)
 
 
 if __name__ == "__main__":

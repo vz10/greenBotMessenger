@@ -88,13 +88,13 @@ def get_quick_replies():
 quick_replies = get_quick_replies()
 
 
-def results_voting(config):
+def results_voting():
     """
     Get a count of each vote and create a result of voting
     :param config: dictionary with values of database's name and collections's name
     :return: string with results of voting
     """
-    values = ("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"])
+    values = ("dbs", config_voting["COSMOS_DATABASE"], "colls", config_voting["COSMOS_COLLECTION"])
     collection_link = "/".join(values)
     query = "SELECT VALUE v.vote FROM Votings v"
     c = Counter(client.QueryDocuments(collection_link, query))
@@ -108,12 +108,12 @@ def results_voting(config):
     return "No votes"
 
 
-def sensors_latest(config):
+def sensors_latest():
     """
     Get sensors data
-    :return: dictionary with data of sensors
+    :return: string with latest sensors data
     """
-    collection_link = "/".join(("dbs", config["COSMOS_DATABASE"], "colls", config["COSMOS_COLLECTION"]))
+    collection_link = "/".join(("dbs", config_sensors["COSMOS_DATABASE"], "colls", config_sensors["COSMOS_COLLECTION"]))
     query = "SELECT TOP 1 * FROM Sensors s ORDER BY s.timestamp DESC"
     res = list(client.QueryDocuments(collection_link, query))
     if res:
@@ -125,7 +125,7 @@ def get_user_vote_or_empty(sender_id):
     """
     Get vote of user
     :param sender_id: the id of sender
-    :return: list of user vote
+    :return: dict (user vote or empty)
     """
     collection_link = "/".join(("dbs", config_voting["COSMOS_DATABASE"], "colls", config_voting["COSMOS_COLLECTION"]))
     query = "SELECT * FROM Votings v WHERE v.sender_id = '{0}'".format(sender_id)
