@@ -11,26 +11,30 @@ from common.azure_db import upsert_docs_to_db, quick_replies, results_voting, co
 
 
 def send_buttons(sender_psid):
+    """
+    Send buttons with options
+    :param sender_psid: sender's id
+    """
     message_body = {
         "attachment": {
             "type": "template",
             "payload": {
                 "template_type": "button",
-                "text": "🌿 What do you want to do next?",
+                "text": "☘️ What do you want to do next?",
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "See sensors data",
+                        "title": "Sensors data️ 🎛",
                         "payload": "sensors_latest"
                     },
                     {
                         "type": "postback",
-                        "title": "Vote",
+                        "title": "Vote ✍️",
                         "payload": "vote"
                     },
                     {
                         "type": "postback",
-                        "title": "See voting results",
+                        "title": "Voting results 📊",
                         "payload": "voting_result"
                     },
                 ]
@@ -53,6 +57,11 @@ def is_processed(id):
 
 
 def handle_message(data):
+    """
+    Handle message
+    :param data: data that comes from sender
+    :return: status of response '200'
+    """
     if data.get("object") == "page":
         for webhook_event in [entry["messaging"][0] for entry in data.get("entry") if "messaging" in entry]:
             # from request get postback
@@ -82,7 +91,7 @@ def handle_message(data):
                 # handle vote
                 elif postback.get("payload") == "vote":
                     message_body = {
-                        "text": "What should I do with the plant?",
+                        "text": "🌿 What should I do with the plant?",
                         "quick_replies": quick_replies
                     }
                     send_fb_message(sender_psid, message_body)
@@ -93,6 +102,7 @@ def handle_message(data):
                     send_fb_message(sender_psid, message_body)
                     send_buttons(sender_psid)
 
+                # handle sensors
                 elif postback.get("payload") == "sensors_latest":
                     message_body = {"text": sensors_latest()}
                     send_fb_message(sender_psid, message_body)
