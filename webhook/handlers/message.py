@@ -14,6 +14,10 @@ from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, c
 
 
 def send_sender_action(sender_psid):
+    """
+    Turn on indicators 'bubble'
+    :param sender_psid: sender's id
+    """
     request_body = {
         "recipient": {
             "id": sender_psid
@@ -27,6 +31,11 @@ def send_sender_action(sender_psid):
 
 
 def send_response(sender_psid, message):
+    """
+    Send response to sender
+    :param sender_psid: sender's id
+    :param message: dictionary with body of message
+    """
     request_body = {
         "recipient": {
             "id": sender_psid
@@ -41,26 +50,30 @@ def send_response(sender_psid, message):
 
 
 def send_buttons(sender_psid):
+    """
+    Send buttons with options
+    :param sender_psid: sender's id
+    """
     message_body = {
         "attachment": {
             "type": "template",
             "payload": {
                 "template_type": "button",
-                "text": "{{user_full_name}}, what do you want to do next?",
+                "text": "☘️ What do you want to do next?",
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "🎛 Show sensors data️",
+                        "title": "Sensors data️ 🎛",
                         "payload": "sensors_latest"
                     },
                     {
                         "type": "postback",
-                        "title": "✍ Vote️",
+                        "title": "Vote ✍️",
                         "payload": "vote"
                     },
                     {
                         "type": "postback",
-                        "title": "📊 Show voting results",
+                        "title": "Voting results 📊",
                         "payload": "voting_result"
                     },
                 ]
@@ -83,6 +96,11 @@ def is_processed(id):
 
 
 def handle_message(data):
+    """
+    Handle message
+    :param data: data that comes from sender
+    :return: status of response '200'
+    """
     if data.get("object") == "page":
         for webhook_event in [entry["messaging"][0] for entry in data.get("entry") if "messaging" in entry]:
             # from request get postback
@@ -123,6 +141,7 @@ def handle_message(data):
                     send_response(sender_psid, message_body)
                     send_buttons(sender_psid)
 
+                # handle sensors
                 elif postback.get("payload") == "sensors_latest":
                     message_body = {"text": sensors_latest(config_sensors)}
                     send_response(sender_psid, message_body)
