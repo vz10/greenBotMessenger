@@ -151,5 +151,5 @@ def handle_message(data):
             elif message.get("text") and not is_processed(message["mid"]):
                 send_buttons(sender_psid)
 
-    # notify facebook that message is received
-    write_http_response(200)
+        # notify facebook that message is received
+        write_http_response(200)
