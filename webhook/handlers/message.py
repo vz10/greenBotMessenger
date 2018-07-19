@@ -13,15 +13,27 @@ from webhook.azure_db import upsert_docs_to_db, quick_replies, results_voting, c
     sensors_latest
 
 
+def send_sender_action(sender_psid):
+    request_body = {
+        "recipient": {
+            "id": sender_psid
+        },
+        "sender_action": "typing_on"
+    }
+    requests.post(url="https://graph.facebook.com/v2.6/me/messages",
+                  params={"access_token": FB_PAGE_ACCESS_TOKEN},
+                  headers={'content-type': 'application/json'},
+                  data=json.dumps(request_body))
+
+
 def send_response(sender_psid, message):
     request_body = {
         "recipient": {
             "id": sender_psid
         },
-        "message": message,
-        "sender_action": "typing_on"
+        "message": message
     }
-
+    send_sender_action(sender_psid)
     requests.post(url="https://graph.facebook.com/v2.6/me/messages",
                   params={"access_token": FB_PAGE_ACCESS_TOKEN},
                   headers={'content-type': 'application/json'},
