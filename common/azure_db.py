@@ -50,6 +50,10 @@ class BaseDocument(object):
 
     @classmethod
     def clear_docs(cls):
+        """
+        Delete all documents in the collection
+        :return:
+        """
         query = "SELECT VALUE v.id FROM Votings v"
         docs = list(cls._client.QueryDocuments(cls._collection_link(), query))
         links = list()
