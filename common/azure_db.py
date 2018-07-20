@@ -50,7 +50,11 @@ class BaseDocument(object):
 
     @classmethod
     def clear_docs(cls):
-        pass
+        query = "SELECT VALUE v.id FROM Votings v"
+        docs = list(cls._client.QueryDocuments(cls._collection_link(), query))
+        links = list()
+        [links.append("{}/docs/{}".format(cls._collection_link, doc)) for doc in docs]
+        [cls._client.DeleteDocument(link) for link in links]
 
 
 class Options(BaseDocument):
