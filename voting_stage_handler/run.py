@@ -18,7 +18,10 @@ def process_voting_stage():
     # TODO: call to IoT device
     Vote.clear_docs()
 
-    message_body = {"text": "Choice {} wins. Action performed".format(top_score)}
+    vote_text = " ".join((top_score[0].split()[-2], top_score[0].split()[-1]))
+    vote_count = top_score[1]
+    text = "Choice '{}' wins with {} votes. Action performed".format(vote_text, vote_count)
+    message_body = {"text": text}
     for participator_id in participators:
         send_fb_message(participator_id, message_body)
         send_buttons(participator_id)
