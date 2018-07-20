@@ -4,44 +4,9 @@ from datetime import datetime
 import redis
 
 from common.azfunc_helper import write_http_response
-from common.fb_message import send_fb_message
+from common.fb_message import send_fb_message, send_buttons
 from common.config import REDIS_HOST, REDIS_PASSWD
-from common.azure_db import upsert_docs_to_db, quick_replies, results_voting, config_voting, get_user_vote_or_empty, \
-    sensors_latest
-
-
-def send_buttons(sender_psid):
-    """
-    Send buttons with options
-    :param sender_psid: sender's id
-    """
-    message_body = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "button",
-                "text": "☘️ What do you want to do next?",
-                "buttons": [
-                    {
-                        "type": "postback",
-                        "title": "Sensors data️ 🎛",
-                        "payload": "sensors_latest"
-                    },
-                    {
-                        "type": "postback",
-                        "title": "Vote ✍️",
-                        "payload": "vote"
-                    },
-                    {
-                        "type": "postback",
-                        "title": "Voting results 📊",
-                        "payload": "voting_result"
-                    },
-                ]
-            }
-        }
-    }
-    send_fb_message(sender_psid, message_body)
+from common.azure_db import Options, Vote, Sensors
 
 
 def is_processed(id):
@@ -75,12 +40,12 @@ def handle_message(data):
             if message.get("quick_reply") and not is_processed(message["mid"]):
 
                 # handle sender's choice
-                result_vote = get_user_vote_or_empty(sender_psid)
+                result_vote = Vote.get_user_vote_or_empty(sender_psid)
                 result_vote["vote"] = message["text"]
                 result_vote["payload"] = message["quick_reply"]["payload"]
                 result_vote["sender_id"] = sender_psid
                 result_vote["timestamp"] = str(datetime.now())
-                upsert_docs_to_db(result_vote, config_voting)
+                Vote.upsert_docs(result_vote)
                 send_buttons(sender_psid)
 
             # handle start button
@@ -92,19 +57,19 @@ def handle_message(data):
                 elif postback.get("payload") == "vote":
                     message_body = {
                         "text": "🌿 What should I do with the plant?",
-                        "quick_replies": quick_replies
+                        "quick_replies": Options.QUICK_REPLIES
                     }
                     send_fb_message(sender_psid, message_body)
 
                 # handle results of voting
                 elif postback.get("payload") == "voting_result":
-                    message_body = {"text": results_voting()}
+                    message_body = {"text": Vote.get_voting_results()}
                     send_fb_message(sender_psid, message_body)
                     send_buttons(sender_psid)
 
                 # handle sensors
                 elif postback.get("payload") == "sensors_latest":
-                    message_body = {"text": sensors_latest()}
+                    message_body = {"text": Sensors.get_latest_data()}
                     send_fb_message(sender_psid, message_body)
                     send_buttons(sender_psid)
 
