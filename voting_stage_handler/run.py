@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 
@@ -19,7 +21,7 @@ def process_voting_stage():
     Vote.clear_docs()
 
     vote_text = " ".join((top_score[0].split()[-2], top_score[0].split()[-1]))
-    text = "Choice '{}' wins. Action performed".format(vote_text)
+    text = "⌛ 🎉 🎈 Choice '{}' wins. Action performed".format(vote_text)
     message_body = {"text": text}
     for participator_id in participators:
         send_fb_message(participator_id, message_body)
