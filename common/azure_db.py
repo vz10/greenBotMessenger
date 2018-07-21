@@ -142,7 +142,12 @@ class Sensors(BaseDocument):
         "COSMOS_DATABASE": "sensors",
         "COSMOS_COLLECTION": "sensorData"
     }
-
+    data_mapper =  (
+        ('Temperature', 'temperature'),
+        ('Humidity', 'humidity'),
+        ('Light', 'light'),
+        ('CO2', 'co2'),
+    )
     @classmethod
     def get_latest_data(cls):
         """
@@ -153,4 +158,5 @@ class Sensors(BaseDocument):
         res = list(cls._client.QueryDocuments(cls._collection_link(), query))
         if res:
             res = res[0]
-            return "temperature: {:.1f}\nhumidity: {:.1f}".format(res["temp"], res["humidity"])
+            output = '\n'.join(["{}: {:.1f}".format(x[0], res[x[1]]) for x in self.data_mapper if res.get(x[1])])
+            return output
