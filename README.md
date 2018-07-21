@@ -5,9 +5,10 @@ In the beginning was a rabbit, and the rabbit name is Vader...
 ### This is he
 ![alt text](./doc/images/vaider.jpeg "The Vaider")
 
-And the only thing he loves more than the Death Star is eating green lettuce leaves. So we need your help to give him what he wants and make him happy that's why we've created this project.
 
-<img align="right" src="doc/images/bot.jpg" height="300px">
+<img align="right" src="doc/images/bot.jpg" height="350px">
+
+And the only thing he loves more than the Death Star is eating green lettuce leaves. So we need your help to give him what he wants and make him happy that's why we've created this project.
 
 We've created a grow box for growing lettuce with a bunch of sensors and switches, and a camera, of course, because everything becomes better if you can livestreaming it. That's what we got on our side and you've got the [Messenger bot](https://www.facebook.com/Green-Bot-Messenger-196489871202541/) to share your thoughts about the better way to grow the most delicious lettuce in the world to pamper the Vaider.
 
