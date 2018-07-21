@@ -6,7 +6,7 @@ In the beginning was a rabbit, and the rabbit name is Vader...
 ![alt text](./doc/images/vaider.jpeg "The Vaider")
 
 
-<img align="right" src="doc/images/bot.jpg" height="350px">
+<img align="right" src="doc/images/bot.jpg" height="380px">
 
 And the only thing he loves more than the Death Star is eating green lettuce leaves. So we need your help to give him what he wants and make him happy that's why we've created this project.
 
