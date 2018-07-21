@@ -30,9 +30,9 @@ When the lettuce ripes all of it goes to the Vader, we don't take a leaf for our
 
 ### Components and integration
 
-The brain of our hardware part is Raspberry Pi, all the sensors are connected to it and script gets data from the sensors and send it to the Azure IoT Hub, where Azure Function invokes on ever new data, parse it and store to the CosmoDB collection.
+The brain of our hardware part is Raspberry Pi, all the sensors are connected to it and script gets data from the sensors and send it to the Azure IoT Hub, where Azure Function invokes on ever new data, parse it and store to the CosmosDB collection.
 
-All the backend part is hosted in the Microsoft Azure. There are a bunch of Azure functions connected to the Messenger bot, they allow users get the last sensors data from the CosmoDB, give a vote for one of the future actions (which also stored to the CosmoDB) and live-checking the voting process. Every hour scheduled function get all the votes from the collection, find the winner and send an RPC call through the Azure IoT Hub to the Raspberry.
+All the backend part is hosted in the Microsoft Azure. There are a bunch of Azure functions connected to the Messenger bot, they allow users get the last sensors data from the CosmosDB, give a vote for one of the future actions (which also stored to the CosmosDB) and live-checking the voting process. Every hour scheduled function get all the votes from the collection, find the winner and send an RPC call through the Azure IoT Hub to the Raspberry.
 
 In addition to sensors inside, there are several switches on the grow box each of them can turn on/off different actions, for example, light, cooler or watering. We have an old-school lego construction where servos connected to the to the switches with some kind of "robo-arms" and we can rotate servos to control the switches and perform actions. So when Raspberry receives the call to action from the cloud it rotates the appropriate servo to perform the action.
 
