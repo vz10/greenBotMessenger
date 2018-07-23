@@ -118,7 +118,7 @@ class Vote(BaseDocument):
     @classmethod
     def get_top_score(cls):
         c = cls._voting_counter()
-        return c.most_common()[0] if c else None
+        return c.most_common(1)[0][0] if c else None
 
     @classmethod
     def get_user_vote_or_empty(cls, sender_id):

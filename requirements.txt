@@ -1,4 +1,3 @@
-azure-iothub-device-client==1.4.0
 pydocumentdb==2.3.2
 python-dotenv==0.8.2
 redis==2.10.6

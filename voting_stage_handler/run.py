@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import os
 import sys
 
@@ -8,24 +8,35 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from common.azure_db import Vote  # noqa
 from common.fb_message import send_fb_message, send_buttons  # noqa
+import requests  # noqa
 
 
 def process_voting_stage():
+    auth_code = os.environ.get("WEBSITE_AUTH_ENCRYPTION_KEY")
+    host = os.environ.get('REQ_HEADERS_HOST')
     top_score = Vote.get_top_score()
-    participators = Vote.get_participators()
 
     if not top_score:
-        return  # noting to do
+        return  # noting to do or not configured
 
-    # TODO: call to IoT device
-    Vote.clear_docs()
-
-    vote_text = " ".join((top_score[0].split()[-2], top_score[0].split()[-1]))
-    text = "⌛ 🎉 🎈 Choice '{}' wins. Action performed".format(vote_text)
-    message_body = {"text": text}
-    for participator_id in participators:
-        send_fb_message(participator_id, message_body)
-        send_buttons(participator_id)
+    participators = Vote.get_participators()
+    resp = requests.post(url="https://{}/api/iot_caller".format(host),
+                         params={"code": auth_code},
+                         headers={'content-type': 'application/json'},
+                         data=json.dumps({'action': top_score}))
+    if resp.status_code == 200:
+        Vote.clear_docs()
+        text = "⌛ 🎉 🎈 Choice '{}' wins. Action performed".format(top_score.replace('_', ' '))
+        message_body = {"text": text}
+        for participator_id in participators:
+            send_fb_message(participator_id, message_body)
+            send_buttons(participator_id)
+    else:
+        print(resp.status_code, resp.text)
+        admin_fb_id = os.environ.get("ADMIN_FB_ID")
+        if admin_fb_id:
+            send_fb_message(admin_fb_id, {"text": "ALERT: Something wrong with with IoT handler!\n"
+                                                  "Code: {}\n{}".format(resp.status_code, resp.text)})
 
 
 if __name__ == "__main__":
