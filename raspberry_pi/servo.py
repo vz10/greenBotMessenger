@@ -28,7 +28,6 @@ LIGHTS = OrderedDict({
 COMMANDS_CHANNEL = 'commands'
 
 
-
 def on(servo):
     _rotate(servo, 45)
 
@@ -72,7 +71,7 @@ if __name__ == '__main__':
     }
 
     for pin in PINS:
-	    GPIO.setup(pin, GPIO.OUT)
+        GPIO.setup(pin, GPIO.OUT)
         off(pin)
 
     redis = redis.StrictRedis(host='localhost', port=6379)
