@@ -87,4 +87,4 @@ if __name__ == '__main__':
 
         sleep(2)
 
-	GPIO.cleanup()
+    GPIO.cleanup()
