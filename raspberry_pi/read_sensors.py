@@ -11,7 +11,6 @@ from collections import defaultdict
 ser = serial.Serial("/dev/ttyACM0", 9600)  #change ACM number as found from ls /dev/tty/ACM*
 ser.baudrate = 9600
 redis = redis.StrictRedis(host='localhost', port=6379)
-pubsub = redis.pubsub()
 PUBLISH_TIMEOUT = 300  # 5 mins
 TIMEOUT_BETWEEN_READ = 2
 SENSORS_CHANNEL = 'sensors_data'
