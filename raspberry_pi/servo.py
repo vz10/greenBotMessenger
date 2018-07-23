@@ -37,11 +37,11 @@ def off(servo):
 
 
 def _rotate(servo, angle):
-	pwm = GPIO.PWM(servo, 50)
-	pwm.start(2)
-	pwm.ChangeDutyCycle(angle / 18. + 2.)
-	sleep(.5)
-	pwm.stop()
+    pwm = GPIO.PWM(servo, 50)
+    pwm.start(2)
+    pwm.ChangeDutyCycle(angle / 18. + 2.)
+    sleep(.5)
+    pwm.stop()
 
 
 def control_light(offset):
