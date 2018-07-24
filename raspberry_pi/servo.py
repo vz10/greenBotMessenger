@@ -33,11 +33,11 @@ pubsub.subscribe(COMMANDS_CHANNEL)
 
 
 def on(servo):
-    _rotate(servo, 45)
+    _rotate(servo, 15)
 
 
 def off(servo):
-    _rotate(servo, 0)
+    _rotate(servo, 60)
 
 
 def _rotate(servo, angle):
