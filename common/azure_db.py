@@ -96,7 +96,7 @@ class Vote(BaseDocument):
 
     @classmethod
     def _voting_counter(cls):
-        query = "SELECT VALUE v.vote FROM Votings v"
+        query = "SELECT VALUE v.payload FROM Votings v"
         return Counter(cls._client.QueryDocuments(cls._collection_link(), query))
 
     @classmethod
@@ -107,12 +107,9 @@ class Vote(BaseDocument):
         """
         c = cls._voting_counter()
         if c:
-            total = reduce((lambda votes, count: votes + count), (count for v, count in c.most_common()))
-            result = ""
-            for v, c in c.most_common():
-                count = "{:.1f}".format(float(c * 100) / total) if float(c * 100) % total != 0 else c * 100 / total
-                result += "{}% for '{}' {}\n".format(count, v.split()[-2], v.split()[-1])
-            return result
+            total = sum(c.values())
+            return "\n".join(  # format: <percents> for '<more|less>' <one of parameters>
+                ["{:g}% for '{}' {}".format(round(c * 100.0 / total, 1), *v.split('_')) for v, c in c.most_common()])
         return "No votes"
 
     @classmethod
