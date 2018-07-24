@@ -12,7 +12,7 @@ import requests  # noqa
 
 
 def process_voting_stage():
-    auth_code = os.environ.get("WEBSITE_AUTH_ENCRYPTION_KEY")
+    auth_code = os.environ.get('AUTH_FUNCTION_KEY')
     host = os.environ.get('WEBSITE_HOSTNAME')
     top_score = Vote.get_top_score()
 
@@ -26,7 +26,7 @@ def process_voting_stage():
                          data=json.dumps({'action': top_score}))
     if resp.status_code == 200:
         Vote.clear_docs()
-        text = "⌛ 🎉 🎈 Choice '{}' wins. Action performed".format(top_score.replace('_', ' '))
+        text = u"⌛ 🎉 🎈 Choice '{}' wins. Action performed".format(top_score.replace(u'_', u' '))
         message_body = {"text": text}
         for participator_id in participators:
             send_fb_message(participator_id, message_body)

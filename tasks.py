@@ -67,13 +67,15 @@ def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, db_url, d
 
 
 @task
-def set_device_access_conf(c, project_name, device_host, shared_access_key_name, shared_access_key, verbose=False):
+def set_device_access_conf(c, project_name, device_host, shared_access_key_name, shared_access_key, auth_function_key,
+                           verbose=False):
     c.run('az functionapp config appsettings set --name {0}-fn --resource-group {0}-gr --settings '
-          'DEVICE_HOST="{1}" DEVICE_ACCESS_KEY_NAME="{2}" DEVICE_ACCESS_KEY="{3}"'.format(
+          'DEVICE_HOST="{1}" DEVICE_ACCESS_KEY_NAME="{2}" DEVICE_ACCESS_KEY="{3}" AUTH_FUNCTION_KEY="{4}"'.format(
               project_name,
               device_host,
               shared_access_key_name,
-              shared_access_key),
+              shared_access_key,
+              auth_function_key),
           hide=None if verbose else "out", echo=verbose)
 
 
