@@ -13,7 +13,7 @@ import requests  # noqa
 
 def process_voting_stage():
     auth_code = os.environ.get("WEBSITE_AUTH_ENCRYPTION_KEY")
-    host = os.environ.get('REQ_HEADERS_HOST')
+    host = os.environ.get('WEBSITE_HOSTNAME')
     top_score = Vote.get_top_score()
 
     if not top_score:

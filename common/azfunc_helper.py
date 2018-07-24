@@ -22,7 +22,8 @@ class HttpRequest(object):
         query_params = urlparse.parse_qs(urlparse.urlparse(req_url_headers).query)
         # parse_qs parses single values into lists
         self.GET = dict((k, v if len(v) > 1 else v[0]) for k, v in query_params.iteritems())
-        self.HOST = os.environ.get('REQ_HEADERS_HOST')
+        self.HOST = os.environ.get('WEBSITE_HOSTNAME')
+        self.REQUESTER_HOST = os.environ.get('REQ_HEADERS_HOST')
 
 
 def write_http_response(status, content_type='text/html', body=None, http_output_env_name='res'):
