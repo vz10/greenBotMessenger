@@ -27,6 +27,10 @@ LIGHTS = OrderedDict({
 })
 COMMANDS_CHANNEL = 'commands'
 
+redis = redis.StrictRedis(host='localhost', port=6379)
+pubsub = redis.pubsub()
+pubsub.subscribe(COMMANDS_CHANNEL)
+
 
 def on(servo):
     _rotate(servo, 45)
@@ -46,45 +50,48 @@ def _rotate(servo, angle):
 
 def control_light(offset):
     light_on = len(filter(lambda state: state, LIGHTS.values()))
+    light_index = light_on + offset
+    if light_index < 0:
+        return
+
     try:
-        pin = LIGHTS.keys()[light_on + offset]
-    except IndexError as e:
+        pin = LIGHTS.keys()[light_index]
+    except IndexError:
         pin = None
 
     if pin is not None:
         if offset:
-            on(pin)
-            LIGHTS[pin] = True
-        else:
             off(pin)
             LIGHTS[pin] = False
+        else:
+            on(pin)
+            LIGHTS[pin] = True
+
+
+COMMANDS = {
+    'more_temp': (off, FAN_PIN),
+    'less_temp': (on, FAN_PIN),
+    'more_water': (on, WATER_PIN),
+    'less_water': (off, WATER_PIN),
+    'more_light': (control_light, 0),
+    'less_light': (control_light, -1)
+}
 
 
 if __name__ == '__main__':
-    COMMANDS = {
-        'more_temp': (off, FAN_PIN),
-        'less_temp': (on, FAN_PIN),
-        'more_water': (on, WATER_PIN),
-        'less_water': (off, WATER_PIN),
-        'more_light': (control_light, 1),
-        'less_light': (control_light, 0)
-    }
-
     for pin in PINS:
         GPIO.setup(pin, GPIO.OUT)
         off(pin)
 
-    redis = redis.StrictRedis(host='localhost', port=6379)
-    pubsub = redis.pubsub()
-    pubsub.subscribe(COMMANDS_CHANNEL)
+    try:
+        while True:
+            message = pubsub.get_message()
+            if message is not None and message.get('type') == 'message':
+                action, argument = COMMANDS.get(message.get('data'))
+                if action is not None:
+                    action(argument)
 
-    while True:
-        message = pubsub.get_message()
-        if message is not None and message.get('type') == 'message':
-            action, argument = COMMANDS.get(message.get('data'))
-            if action is not None:
-                action(argument)
+            sleep(2)
 
-        sleep(2)
-
-    GPIO.cleanup()
+    finally:
+        GPIO.cleanup()
