@@ -56,14 +56,34 @@ def set_os_env(c, project_name, fb_page_access_token, fb_verify_token, db_url, d
     c.run('az functionapp config appsettings set --name {0}-fn --resource-group {0}-gr --settings '
           'FB_VERIFY_TOKEN="{1}" FB_PAGE_ACCESS_TOKEN="{2}" REDIS_HOST="{3}" REDIS_PASSWD="{4}" '
           'DB_URL="{5}" DB_PASSWORD="{6}"'.format(
-        project_name,
-        fb_verify_token,
-        fb_page_access_token,
-        "{}-rd.redis.cache.windows.net".format(project_name),
-        res_dict["primaryKey"],
-        db_url,
-        db_password
-    ), hide=None if verbose else "out", echo=verbose)
+              project_name,
+              fb_verify_token,
+              fb_page_access_token,
+              "{}-rd.redis.cache.windows.net".format(project_name),
+              res_dict["primaryKey"],
+              db_url,
+              db_password),
+          hide=None if verbose else "out", echo=verbose)
+
+
+@task
+def set_device_access_conf(c, project_name, device_host, shared_access_key_name, shared_access_key, verbose=False):
+    c.run('az functionapp config appsettings set --name {0}-fn --resource-group {0}-gr --settings '
+          'DEVICE_HOST="{1}" DEVICE_ACCESS_KEY_NAME="{2}" DEVICE_ACCESS_KEY="{3}"'.format(
+              project_name,
+              device_host,
+              shared_access_key_name,
+              shared_access_key),
+          hide=None if verbose else "out", echo=verbose)
+
+
+@task
+def set_admin_fb_sender_ids(c, project_name, ids, verbose=False):
+    c.run('az functionapp config appsettings set --name {0}-fn --resource-group {0}-gr --settings '
+          'ADMIN_FB_SENDER_IDS="{1}"'.format(
+              project_name,
+              ids),
+          hide=None if verbose else "out", echo=verbose)
 
 
 @task
@@ -98,7 +118,8 @@ def show_config(c, project_name, verbose=False):
     res = {}
     for s in json.loads(r.stdout):
         if s["name"] in ("REDIS_HOST", "REDIS_PASSWD", "FB_VERIFY_TOKEN", "FB_PAGE_ACCESS_TOKEN",
-                         "DB_URL", "DB_PASSWORD"):
+                         "DB_URL", "DB_PASSWORD", "DEVICE_HOST", "DEVICE_ACCESS_KEY_NAME", "DEVICE_ACCESS_KEY",
+                         "ADMIN_FB_SENDER_IDS"):
             res[s["name"]] = s["value"]
     res["WEBHOOK_URL"] = "https://{}-fn.azurewebsites.net/api/webhook".format(project_name)
     print("\n\n".join(map(lambda k: "{} = {}".format(k, res[k]), res)))
