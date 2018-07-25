@@ -19,6 +19,8 @@ module.exports = function (context, req) {
                 status: 500,
                 body: error_msg
             };
+            context.done();
+            return 1;
         }
 
         let deviceId = 'MyPythonDevice';
@@ -38,19 +40,20 @@ module.exports = function (context, req) {
         client.invokeDeviceMethod(deviceId, methodParams, function (err, result) {
             if (err) {
                 let error_msg = 'Failed to invoke method \'' + methodParams.methodName + '\': ' + err.message;
-                console.error(error_msg);
+                context.log(error_msg);
                 context.res = {
                     status: 500,
                     body: error_msg
                 };
             } else {
-                console.log('Response from ' + methodParams.methodName + ' on ' + deviceId + ':');
-                console.log(JSON.stringify(result, null, 2));
+                context.log('Response from ' + methodParams.methodName + ' on ' + deviceId + ':');
+                context.log(JSON.stringify(result, null, 2));
                 context.res = {
                     // status: 200, /* Defaults to 200 */
                     body: "Action performed"
                 };
             }
+            context.done();
         });
 
     }
@@ -59,6 +62,6 @@ module.exports = function (context, req) {
             status: 400,
             body: "'action' is not provided"
         };
+        context.done();
     }
-    context.done();
 };
