@@ -33,10 +33,10 @@ def process_voting_stage():
             send_buttons(participator_id)
     else:
         print(resp.status_code, resp.text)
-        admin_fb_id = os.environ.get("ADMIN_FB_SENDER_IDS")
-        if admin_fb_id:
-            send_fb_message(admin_fb_id, {"text": "ALERT: Something wrong with with IoT handler!\n"
-                                                  "Code: {}\n{}".format(resp.status_code, resp.text)})
+        admin_fb_ids = os.environ.get("ADMIN_FB_SENDER_IDS")
+        for sender_id in admin_fb_ids:
+            send_fb_message(sender_id, {"text": "ALERT: Something wrong with with IoT handler!\n"
+                                                "Code: {}\n{}".format(resp.status_code, resp.text)})
 
 
 if __name__ == "__main__":
