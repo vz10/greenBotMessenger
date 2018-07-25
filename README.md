@@ -9,8 +9,12 @@
 
 
 ### This is he
+
+<div align="center">
+
 ![alt text](./doc/images/vaider.jpeg "The Vaider")
 
+</div>
 
 <img align="right" src="doc/images/bot.jpg" height="380px">
 
@@ -32,7 +36,11 @@ When the lettuce ripes all of it goes to the Vader, we don't take a leaf for our
 
 ### Architecture overview
 
+<div align="center">
+
 ![alt text](./doc/images/components.jpg "GreenFarm Architecture")
+
+</div>
 
 ### Components and integration
 
@@ -41,7 +49,12 @@ The brain of our hardware part is Raspberry Pi, all the sensors are connected to
 All the backend part is hosted in the Microsoft Azure. There are a bunch of Azure functions connected to the Messenger bot, they allow users get the last sensors data from the CosmosDB, give a vote for one of the future actions (which also stored to the CosmosDB) and live-checking the voting process. Every hour scheduled function get all the votes from the collection, find the winner and send an RPC call through the Azure IoT Hub to the Raspberry.
 
 Diagram of Microsoft Azure Functions
+
+<div align="center">
+
 ![alt text](./doc/images/functions.png "Microsoft Azure Functions")
+
+</div>
 
 In addition to sensors inside, there are several switches on the grow box each of them can turn on/off different actions, for example, light, cooler or watering. We have an old-school lego construction where servos connected to the to the switches with some kind of "robo-arms" and we can rotate servos to control the switches and perform actions. So when Raspberry receives the call to action from the cloud it rotates the appropriate servo to perform the action.
 
@@ -51,4 +64,9 @@ And as a proof of work every time some action on grow box performed we turn the 
 
 Let's grow the lettuce for the rabbit!
 
+<div align="center">
+
 ![alt text](./doc/images/qr-code.gif "QR-code")
+
+</div>
+
