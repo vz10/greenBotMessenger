@@ -66,7 +66,7 @@ In addition to sensors inside, there are several switches on the grow box each o
 
 And as a proof of work every time some action on grow box performed we turn the live streaming on our Facebook page to give people the opportunity to see how their decision is implementing.
 
-Let's grow the lettuce for the rabbit!
+Let's grow some lettuce for the rabbit!
 
 <div align="center">
 
