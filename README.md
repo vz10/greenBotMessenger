@@ -58,7 +58,11 @@ Diagram of Microsoft Azure Functions
 
 In addition to sensors inside, there are several switches on the grow box each of them can turn on/off different actions, for example, light, cooler or watering. We have an old-school lego construction where servos connected to the to the switches with some kind of "robo-arms" and we can rotate servos to control the switches and perform actions. So when Raspberry receives the call to action from the cloud it rotates the appropriate servo to perform the action.
 
-[photo of counstrunction here]
+<div align="center">
+
+![alt text](./doc/images/thing.jpg "The main construction")
+
+</div>
 
 And as a proof of work every time some action on grow box performed we turn the live streaming on our Facebook page to give people the opportunity to see how their decision is implementing.
 
