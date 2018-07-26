@@ -2,10 +2,9 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../venv/Lib/site-packages')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../venv/lib/python2.7')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from azfunc_helper import HttpRequest  # noqa
+from common.azfunc_helper import HttpRequest  # noqa
 from handlers import handle_token, handle_message  # noqa
 
 

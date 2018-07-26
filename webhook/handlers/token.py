@@ -1,5 +1,5 @@
-from azfunc_helper import write_http_response
-from config import FB_VERIFY_TOKEN
+from common.azfunc_helper import write_http_response
+from common.config import FB_VERIFY_TOKEN
 
 
 def handle_token(query_params):
