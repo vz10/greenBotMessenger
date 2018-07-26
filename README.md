@@ -1,4 +1,4 @@
-![alt text](./doc/images/header.jpg "CrowdFarming")
+![alt text](docs/images/header.jpg "CrowdFarming")
 
 
 <br/>
@@ -12,7 +12,7 @@
 
 <div align="center">
 
-![alt text](./doc/images/vaider.jpeg "The Vaider")
+![alt text](docs/images/vaider.jpeg "The Vaider")
 
 </div>
 
@@ -38,7 +38,7 @@ When the lettuce ripes all of it goes to the Vader, we don't take a leaf for our
 
 <div align="center">
 
-![alt text](./doc/images/components.jpg "GreenFarm Architecture")
+![alt text](docs/images/components.jpg "GreenFarm Architecture")
 
 </div>
 
@@ -52,7 +52,7 @@ Diagram of Microsoft Azure Functions
 
 <div align="center">
 
-![alt text](./doc/images/functions.png "Microsoft Azure Functions")
+![alt text](docs/images/functions.png "Microsoft Azure Functions")
 
 </div>
 
@@ -60,7 +60,7 @@ In addition to sensors inside, there are several switches on the grow box each o
 
 <div align="center">
 
-![alt text](./doc/images/thing.jpg "The main construction")
+![alt text](docs/images/thing.jpg "The main construction")
 
 </div>
 
@@ -70,7 +70,7 @@ Let's grow some lettuce for the rabbit!
 
 <div align="center">
 
-![alt text](./doc/images/qr-code.gif "QR-code")
+![alt text](docs/images/qr-code.gif "QR-code")
 
 </div>
 
