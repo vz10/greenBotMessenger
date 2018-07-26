@@ -12,7 +12,7 @@
 
 <div align="center">
 
-![alt text](docs/images/vaider.jpeg "The Vaider")
+![alt text](docs/images/vader.jpeg "The Vader")
 
 </div>
 
@@ -20,7 +20,7 @@
 
 And the only thing he loves more than the Death Star is eating green lettuce leaves. So we need your help to give him what he wants and make him happy that's why we've created this project.
 
-We've created a grow box for growing lettuce with a bunch of sensors and switches, and a camera, of course, because everything becomes better if you can livestreaming it. That's what we got on our side and you've got the [Messenger bot](https://www.facebook.com/Green-Bot-Messenger-196489871202541/) to share your thoughts about the better way to grow the most delicious lettuce in the world to pamper the Vaider.
+We've created a grow box for growing lettuce with a bunch of sensors and switches, and a camera, of course, because everything becomes better if you can livestreaming it. That's what we got on our side and you've got the [Messenger bot](https://www.facebook.com/Green-Bot-Messenger-196489871202541/) to share your thoughts about the better way to grow the most delicious lettuce in the world to pamper the Vader.
 
 ### How it works
 
