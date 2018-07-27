@@ -10,7 +10,8 @@ def send_fb_message(sender_psid, message):
         "recipient": {
             "id": sender_psid
         },
-        "message": message
+        "message": message,
+        "messaging_type": "RESPONSE"
     }
 
     requests.post(url="https://graph.facebook.com/v2.6/me/messages",
