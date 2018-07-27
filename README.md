@@ -16,7 +16,7 @@
 
 </div>
 
-<img align="right" src="doc/images/bot.jpg" height="380px">
+<img align="right" src="docs/images/bot.jpg" height="380px">
 
 And the only thing he loves more than the Death Star is eating green lettuce leaves. So we need your help to give him what he wants and make him happy that's why we've created this project.
 
